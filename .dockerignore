@@ -1,0 +1,7 @@
+**
+!infra/
+!infra/docker/
+!infra/docker/mlflow/
+!infra/docker/mlflow/Dockerfile
+!infra/docker/mlflow/requirements.lock
+!infra/docker/mlflow/start.py

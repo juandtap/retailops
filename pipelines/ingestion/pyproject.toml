@@ -1,0 +1,6 @@
+[project]
+name = "retailops-ingestion"
+version = "0.1.0"
+description = "Perfilado reproducible y local de las fuentes de RetailOps"
+requires-python = ">=3.12,<3.13"
+dependencies = ["pyarrow>=20,<25", "psycopg[binary]>=3.2,<4", "minio>=7.2,<8"]

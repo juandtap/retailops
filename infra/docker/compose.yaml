@@ -1,0 +1,8 @@
+name: retailops-data
+include:
+  - compose.postgres.yaml
+  - compose.minio.yaml
+  - compose.mlflow.yaml
+networks:
+  data:
+    driver: bridge

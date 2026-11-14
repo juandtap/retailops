@@ -1,0 +1,17 @@
+{
+  "contract_version": 1,
+  "batch_id": "bootstrap-2013-2014",
+  "period_start": "2013-01-01",
+  "period_end": "2014-12-31",
+  "expected_sales": 1297296,
+  "expected_stores": 54,
+  "expected_families": 33,
+  "accepted_missing_dates": ["2013-12-25", "2014-12-25"],
+  "calendar_complete": false,
+  "observed_grid_complete_required": true,
+  "expected_batch_complete": true,
+  "known_from_policy": "NULL para tiendas, familias, feriados y petróleo; sin evidencia inventada",
+  "s3_publishable_entities": ["sales", "store_transactions", "observation_gaps"],
+  "bronze_decimal_type": "decimal128(38,18)",
+  "row_group_size": 32768
+}

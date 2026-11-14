@@ -1,0 +1,50 @@
+services:
+  mlflow:
+    image: retailops-mlflow:local-v1
+    build:
+      context: ../..
+      dockerfile: infra/docker/mlflow/Dockerfile
+    profiles: [mlops]
+    environment:
+      MLFLOW_SERVER_ALLOWED_HOSTS: "127.0.0.1:*,localhost:*,mlflow:*"
+    ports:
+      - "127.0.0.1:${MLFLOW_PORT:-5000}:5000"
+    secrets: [pg_mlflow_password, minio_mlflow_user, minio_mlflow_password]
+    networks: [data]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health',timeout=3)"]
+      interval: 5s
+      timeout: 4s
+      retries: 30
+      start_period: 30s
+    mem_limit: ${MLFLOW_MEMORY:-1g}
+    cpus: ${MLFLOW_CPUS:-2}
+    pids_limit: 256
+    restart: "no"
+    security_opt: [no-new-privileges:true]
+  mlops-admin:
+    user: "0:0"
+    image: retailops-minio:7aac2a2-77f82e1
+    profiles: [tools]
+    entrypoint: [/bin/sh, /tools/configure-minio.sh]
+    volumes:
+      - ./mlflow/configure-minio.sh:/tools/configure-minio.sh:ro
+      - ./mlflow/policy.json:/tools/mlflow-policy.json:ro
+    secrets: [minio_root_user, minio_root_password, minio_mlflow_user, minio_mlflow_password]
+    tmpfs: [/tmp]
+    networks: [data]
+    mem_limit: 256m
+    cpus: 1
+    security_opt: [no-new-privileges:true]
+secrets:
+  pg_mlflow_password:
+    file: ../../.local/secrets/pg_mlflow_password
+  minio_mlflow_user:
+    file: ../../.local/secrets/minio_mlflow_user
+  minio_mlflow_password:
+    file: ../../.local/secrets/minio_mlflow_password

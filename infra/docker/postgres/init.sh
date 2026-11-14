@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+export PGPASSWORD="$PG_ADMIN_PASSWORD"
+psql -v ON_ERROR_STOP=1 --username postgres --dbname "$POSTGRES_DB" <<'SQL'
+\getenv p_control PG_CONTROL_PASSWORD
+CREATE ROLE retailops_control_migrator LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD :'p_control';
+\getenv p_data PG_DATA_PASSWORD
+CREATE ROLE retailops_data_migrator LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD :'p_data';
+\getenv p_api PG_API_PASSWORD
+CREATE ROLE retailops_api LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD :'p_api';
+\getenv p_ingestor PG_INGESTOR_PASSWORD
+CREATE ROLE retailops_ingestor LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD :'p_ingestor';
+\getenv p_releaser PG_RELEASER_PASSWORD
+CREATE ROLE retailops_releaser LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD :'p_releaser';
+\getenv p_trainer PG_TRAINER_PASSWORD
+CREATE ROLE retailops_trainer LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD :'p_trainer';
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON DATABASE :"DBNAME" FROM PUBLIC;
+GRANT CONNECT ON DATABASE :"DBNAME" TO retailops_control_migrator, retailops_data_migrator, retailops_api, retailops_ingestor, retailops_releaser, retailops_trainer;
+CREATE SCHEMA control AUTHORIZATION retailops_control_migrator;
+CREATE SCHEMA data_meta AUTHORIZATION retailops_data_migrator;
+CREATE SCHEMA silver AUTHORIZATION retailops_data_migrator;
+CREATE SCHEMA gold AUTHORIZATION retailops_data_migrator;
+CREATE SCHEMA training AUTHORIZATION retailops_data_migrator;
+SQL

@@ -1,0 +1,32 @@
+{
+  "uv_lock_sha256": "fe9c2931f3254766a7a4975af0c703fd68a93cd28549c9a3f21c721d7e8905e4",
+  "module_sha256": {
+    "__init__.py": "e9498319e37f650b05598044f8af8ed82ca9ec0b29f8641fdc2d23b5f3c80e90",
+    "analysis.py": "ef778d9112cd02270f64e9b1c255ee41cf5589cc77d56a39293db964398ca048",
+    "data.py": "f2f69783d52c347c104675c29a469153a66513b5dcc94ce413194321fd536450",
+    "queries.py": "13860637f5736bf86f2500491d7baee286fbb39505b5fdb06927b3d77e0f0e96",
+    "runtime.py": "772c211b209c25dbc4df6cdfeb5cd7c674e96f75292ae167c85755860052c792"
+  },
+  "python": "3.12.16",
+  "role": "retailops_trainer",
+  "period_start": "2013-01-01",
+  "period_end": "2014-12-31",
+  "notebooks": [
+    {
+      "notebook": "01_exploratory_data_analysis.ipynb",
+      "sha256": "6f1b028380c3a03e256607e4976e312b7a06e8ca4fde55a496b05d7d4a1b6bd1",
+      "code_cells_executed": 5,
+      "duration_seconds": 5.39,
+      "outputs_persisted": false,
+      "status": "SUCCEEDED"
+    },
+    {
+      "notebook": "02_time_series_analysis.ipynb",
+      "sha256": "1e0d2866b6912d83fedf020e4edc8ad216cce846e739e29d52b04e8926aa051f",
+      "code_cells_executed": 5,
+      "duration_seconds": 5.354,
+      "outputs_persisted": false,
+      "status": "SUCCEEDED"
+    }
+  ]
+}

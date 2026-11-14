@@ -1,0 +1,72 @@
+services:
+  minio:
+    image: retailops-minio:7aac2a2-77f82e1
+    build:
+      context: ./minio
+    # Compose secrets usa bind mounts locales; root puede leer archivos 0600 sin abrirlos al mundo.
+    user: "0:0"
+    command: [server, /data, --address, ":9000", --console-address, ":9001"]
+    environment:
+      MINIO_ROOT_USER_FILE: /run/secrets/minio_root_user
+      MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_root_password
+      MINIO_BROWSER: "off"
+    ports:
+      - "127.0.0.1:${MINIO_PORT:-9000}:9000"
+    volumes:
+      - minio_data:/data
+    secrets: [minio_root_user, minio_root_password]
+    networks: [data]
+    healthcheck:
+      test: [CMD-SHELL, 'wget -q -O /dev/null http://127.0.0.1:9000/minio/health/ready']
+      interval: 5s
+      timeout: 3s
+      retries: 24
+      start_period: 20s
+    mem_limit: ${MINIO_MEMORY:-2g}
+    cpus: ${MINIO_CPUS:-2}
+    pids_limit: 512
+    restart: "no"
+    security_opt: [no-new-privileges:true]
+  minio-admin:
+    image: retailops-minio:7aac2a2-77f82e1
+    profiles: [tools]
+    user: "0:0"
+    entrypoint: [/bin/sh, /tools/minio-admin.sh]
+    environment:
+      MINIO_ENDPOINT: ${MINIO_INTERNAL_ENDPOINT:-http://minio:9000}
+    volumes:
+      - ./minio/admin.sh:/tools/minio-admin.sh:ro
+      - ./policies:/policies:ro
+    secrets:
+      - minio_root_user
+      - minio_root_password
+      - minio_ingestor_user
+      - minio_ingestor_password
+      - minio_releaser_user
+      - minio_releaser_password
+      - minio_trainer_user
+      - minio_trainer_password
+    tmpfs: [/tmp]
+    networks: [data]
+    mem_limit: 256m
+    cpus: 1
+    security_opt: [no-new-privileges:true]
+volumes:
+  minio_data:
+secrets:
+  minio_root_user:
+    file: ../../.local/secrets/minio_root_user
+  minio_root_password:
+    file: ../../.local/secrets/minio_root_password
+  minio_ingestor_user:
+    file: ../../.local/secrets/minio_ingestor_user
+  minio_ingestor_password:
+    file: ../../.local/secrets/minio_ingestor_password
+  minio_releaser_user:
+    file: ../../.local/secrets/minio_releaser_user
+  minio_releaser_password:
+    file: ../../.local/secrets/minio_releaser_password
+  minio_trainer_user:
+    file: ../../.local/secrets/minio_trainer_user
+  minio_trainer_password:
+    file: ../../.local/secrets/minio_trainer_password

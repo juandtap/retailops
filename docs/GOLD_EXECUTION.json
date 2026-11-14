@@ -1,0 +1,204 @@
+{
+  "version": "sales-pit-v1",
+  "historical_cutoff": "2014-12-31",
+  "blocks": [
+    {
+      "start": "2013-01-01",
+      "end": "2013-01-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 6.832
+    },
+    {
+      "start": "2013-02-01",
+      "end": "2013-02-28",
+      "features": 349272,
+      "labels": 49896,
+      "reused": true,
+      "seconds": 5.968
+    },
+    {
+      "start": "2013-03-01",
+      "end": "2013-03-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 5.276
+    },
+    {
+      "start": "2013-04-01",
+      "end": "2013-04-30",
+      "features": 374220,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 6.024
+    },
+    {
+      "start": "2013-05-01",
+      "end": "2013-05-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 5.32
+    },
+    {
+      "start": "2013-06-01",
+      "end": "2013-06-30",
+      "features": 374220,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 5.138
+    },
+    {
+      "start": "2013-07-01",
+      "end": "2013-07-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 5.29
+    },
+    {
+      "start": "2013-08-01",
+      "end": "2013-08-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 5.316
+    },
+    {
+      "start": "2013-09-01",
+      "end": "2013-09-30",
+      "features": 374220,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 5.151
+    },
+    {
+      "start": "2013-10-01",
+      "end": "2013-10-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 5.285
+    },
+    {
+      "start": "2013-11-01",
+      "end": "2013-11-30",
+      "features": 374220,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 10.379
+    },
+    {
+      "start": "2013-12-01",
+      "end": "2013-12-31",
+      "features": 386694,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 8.237
+    },
+    {
+      "start": "2014-01-01",
+      "end": "2014-01-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 12.55
+    },
+    {
+      "start": "2014-02-01",
+      "end": "2014-02-28",
+      "features": 349272,
+      "labels": 49896,
+      "reused": true,
+      "seconds": 16.065
+    },
+    {
+      "start": "2014-03-01",
+      "end": "2014-03-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 20.595
+    },
+    {
+      "start": "2014-04-01",
+      "end": "2014-04-30",
+      "features": 374220,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 17.256
+    },
+    {
+      "start": "2014-05-01",
+      "end": "2014-05-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 9.609
+    },
+    {
+      "start": "2014-06-01",
+      "end": "2014-06-30",
+      "features": 374220,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 10.189
+    },
+    {
+      "start": "2014-07-01",
+      "end": "2014-07-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 28.241
+    },
+    {
+      "start": "2014-08-01",
+      "end": "2014-08-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 30.544
+    },
+    {
+      "start": "2014-09-01",
+      "end": "2014-09-30",
+      "features": 374220,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 24.599
+    },
+    {
+      "start": "2014-10-01",
+      "end": "2014-10-31",
+      "features": 386694,
+      "labels": 55242,
+      "reused": true,
+      "seconds": 24.625
+    },
+    {
+      "start": "2014-11-01",
+      "end": "2014-11-30",
+      "features": 374220,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 20.102
+    },
+    {
+      "start": "2014-12-01",
+      "end": "2014-12-31",
+      "features": 386694,
+      "labels": 53460,
+      "reused": true,
+      "seconds": 13.412
+    }
+  ],
+  "feature_rows": 9106020,
+  "label_rows": 1297296,
+  "seconds": 302.014,
+  "client_max_rss_kib": 49484,
+  "code_sha256": "845bc170b5698c8b4e1fa75823a4d135074a39664c3de8750a837354c046b25d",
+  "status": "SUCCEEDED"
+}

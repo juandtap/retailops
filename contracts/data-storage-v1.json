@@ -1,0 +1,266 @@
+{
+  "contract_version": 1,
+  "source": {
+    "encoding": "UTF-8",
+    "delimiter": ",",
+    "immutable": true,
+    "checksum": "SHA-256",
+    "files": {
+      "train.csv": {
+        "columns": [
+          {
+            "name": "id",
+            "logical_type": "BIGINT",
+            "nullable": false
+          },
+          {
+            "name": "date",
+            "logical_type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "store_nbr",
+            "logical_type": "SMALLINT",
+            "nullable": false
+          },
+          {
+            "name": "family",
+            "logical_type": "TEXT",
+            "nullable": false
+          },
+          {
+            "name": "sales",
+            "logical_type": "NUMERIC",
+            "nullable": false
+          },
+          {
+            "name": "onpromotion",
+            "logical_type": "INTEGER",
+            "nullable": false
+          }
+        ],
+        "eligible_as_observed_sales": true,
+        "role": "observation"
+      },
+      "test.csv": {
+        "columns": [
+          {
+            "name": "id",
+            "logical_type": "BIGINT",
+            "nullable": false
+          },
+          {
+            "name": "date",
+            "logical_type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "store_nbr",
+            "logical_type": "SMALLINT",
+            "nullable": false
+          },
+          {
+            "name": "family",
+            "logical_type": "TEXT",
+            "nullable": false
+          },
+          {
+            "name": "onpromotion",
+            "logical_type": "INTEGER",
+            "nullable": false
+          }
+        ],
+        "eligible_as_observed_sales": false,
+        "role": "competition_only"
+      },
+      "stores.csv": {
+        "columns": [
+          {
+            "name": "store_nbr",
+            "logical_type": "SMALLINT",
+            "nullable": false
+          },
+          {
+            "name": "city",
+            "logical_type": "TEXT",
+            "nullable": false
+          },
+          {
+            "name": "state",
+            "logical_type": "TEXT",
+            "nullable": false
+          },
+          {
+            "name": "type",
+            "logical_type": "TEXT",
+            "nullable": false
+          },
+          {
+            "name": "cluster",
+            "logical_type": "SMALLINT",
+            "nullable": false
+          }
+        ],
+        "eligible_as_observed_sales": false,
+        "role": "auxiliary"
+      },
+      "holidays_events.csv": {
+        "columns": [
+          {
+            "name": "date",
+            "logical_type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "type",
+            "logical_type": "TEXT",
+            "nullable": false
+          },
+          {
+            "name": "locale",
+            "logical_type": "TEXT",
+            "nullable": false
+          },
+          {
+            "name": "locale_name",
+            "logical_type": "TEXT",
+            "nullable": false
+          },
+          {
+            "name": "description",
+            "logical_type": "TEXT",
+            "nullable": false
+          },
+          {
+            "name": "transferred",
+            "logical_type": "BOOLEAN",
+            "nullable": false
+          }
+        ],
+        "eligible_as_observed_sales": false,
+        "role": "auxiliary"
+      },
+      "oil.csv": {
+        "columns": [
+          {
+            "name": "date",
+            "logical_type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "dcoilwtico",
+            "logical_type": "NUMERIC",
+            "nullable": true
+          }
+        ],
+        "eligible_as_observed_sales": false,
+        "role": "auxiliary"
+      },
+      "transactions.csv": {
+        "columns": [
+          {
+            "name": "date",
+            "logical_type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "store_nbr",
+            "logical_type": "SMALLINT",
+            "nullable": false
+          },
+          {
+            "name": "transactions",
+            "logical_type": "INTEGER",
+            "nullable": false
+          }
+        ],
+        "eligible_as_observed_sales": false,
+        "role": "auxiliary"
+      },
+      "sample_submission.csv": {
+        "columns": [
+          {
+            "name": "id",
+            "logical_type": "BIGINT",
+            "nullable": false
+          },
+          {
+            "name": "sales",
+            "logical_type": "NUMERIC",
+            "nullable": false
+          }
+        ],
+        "eligible_as_observed_sales": false,
+        "role": "competition_only"
+      }
+    }
+  },
+  "raw": {
+    "bucket_before_release": "retailops-quarantine",
+    "bucket_after_release": "retailops-released",
+    "prefix": "raw/{entity}/year={YYYY}/month={MM}/batch={batch_id}/{source_sha256}.csv",
+    "format": "CSV",
+    "byte_preserving": true,
+    "checksum_required": true,
+    "version_id_required": true
+  },
+  "bronze": {
+    "bucket_before_release": "retailops-quarantine",
+    "bucket_after_release": "retailops-released",
+    "prefix": "bronze/{entity}/year={YYYY}/month={MM}/batch={batch_id}/{content_sha256}.parquet",
+    "format": "Parquet",
+    "metadata_required": [
+      "batch_id",
+      "source_file",
+      "source_sha256",
+      "source_row_number",
+      "ingested_at",
+      "contract_version"
+    ],
+    "typed": true,
+    "no_future_imputation": true
+  },
+  "silver": {
+    "schema": "silver",
+    "sales_key": [
+      "date",
+      "store_nbr",
+      "family"
+    ],
+    "sales_type": "NUMERIC",
+    "promotions_type": "INTEGER",
+    "negative_sales_allowed": false,
+    "unknown_auxiliary_is_zero": false,
+    "trace_required": [
+      "batch_id",
+      "source_sha256",
+      "source_row_number",
+      "ingested_at"
+    ],
+    "insert_only_for_ingestor": true,
+    "released_batch_insert_allowed": false
+  },
+  "visibility": {
+    "training_sql_schema": "training",
+    "trainer_base_table_access": false,
+    "trainer_future_bucket_access": false,
+    "release_state_owned_by": "retailops_releaser",
+    "cutoff_initial": null,
+    "model_training_executed": false
+  },
+  "idempotency": {
+    "source_identity": "source_sha256",
+    "batch_identity": [
+      "kind",
+      "entity",
+      "period_start",
+      "period_end"
+    ],
+    "sales_identity": [
+      "date",
+      "store_nbr",
+      "family"
+    ],
+    "retry": "Comparar contenido, recuentos, checksums y versiones; no sobreescribir ni aceptar conflictos de contenido en silencio."
+  }
+}
