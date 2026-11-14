@@ -1,0 +1,99 @@
+x-airflow: &airflow
+  image: retailops-airflow:3.3.2-v1
+  build:
+    context: ../..
+    dockerfile: infra/docker/airflow/Dockerfile
+  profiles: [airflow]
+  user: "${AIRFLOW_UID:-1000}:0"
+  environment: &airflow-env
+    HOME: /home/airflow
+    PYTHONPATH: /home/airflow/.local/lib/python3.12/site-packages
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__PARALLELISM: "2"
+    AIRFLOW__CORE__MAX_ACTIVE_TASKS_PER_DAG: "1"
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: admin:admin
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/config/users.json
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api:8080/execution/
+    AIRFLOW__API__BASE_URL: http://localhost:${AIRFLOW_PORT:-8081}
+    AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: "10"
+    AIRFLOW__DAG_PROCESSOR__MIN_FILE_PROCESS_INTERVAL: "10"
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+    AIRFLOW__LOGGING__BASE_LOG_FOLDER: /opt/airflow/logs
+    AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_SIZE: "3"
+    AIRFLOW__DATABASE__SQL_ALCHEMY_MAX_OVERFLOW: "3"
+  secrets:
+    - pg_airflow_password
+    - airflow_fernet_key
+    - airflow_jwt_secret
+    - airflow_users
+    - source: pg_ingestor_password
+      target: /opt/retailops/.local/secrets/pg_ingestor_password
+    - source: pg_releaser_password
+      target: /opt/retailops/.local/secrets/pg_releaser_password
+    - source: pg_trainer_password
+      target: /opt/retailops/.local/secrets/pg_trainer_password
+    - source: minio_ingestor_user
+      target: /opt/retailops/.local/secrets/minio_ingestor_user
+    - source: minio_ingestor_password
+      target: /opt/retailops/.local/secrets/minio_ingestor_password
+    - source: minio_releaser_user
+      target: /opt/retailops/.local/secrets/minio_releaser_user
+    - source: minio_releaser_password
+      target: /opt/retailops/.local/secrets/minio_releaser_password
+  volumes:
+    - airflow_logs:/opt/airflow/logs
+    - ../../.local/airflow/auth:/opt/airflow/config
+    - ../../.local/airflow/monthly:/opt/retailops/.local/airflow/monthly:ro
+    - ../../.local/airflow/ml:/opt/retailops/.local/airflow/ml
+  networks: [data]
+  depends_on:
+    postgres:
+      condition: service_healthy
+  mem_limit: ${AIRFLOW_MEMORY:-1g}
+  cpus: ${AIRFLOW_CPUS:-2}
+  pids_limit: 512
+  restart: "no"
+  security_opt: [no-new-privileges:true]
+services:
+  airflow-api:
+    <<: *airflow
+    command: [api-server, --workers, "1"]
+    ports: ["127.0.0.1:${AIRFLOW_PORT:-8081}:8080"]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/v2/monitor/health',timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+  airflow-scheduler:
+    <<: *airflow
+    command: [scheduler]
+    mem_limit: ${AIRFLOW_SCHEDULER_MEMORY:-3g}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8974/health',timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+  airflow-dag-processor:
+    <<: *airflow
+    command: [dag-processor]
+    healthcheck:
+      test: [CMD, python, -c, "import json,urllib.request; d=json.load(urllib.request.urlopen('http://airflow-api:8080/api/v2/monitor/health',timeout=3)); assert d['dag_processor']['status']=='healthy'"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+volumes:
+  airflow_logs:
+secrets:
+  pg_airflow_password:
+    file: ../../.local/secrets/pg_airflow_password
+  airflow_fernet_key:
+    file: ../../.local/secrets/airflow_fernet_key
+  airflow_jwt_secret:
+    file: ../../.local/secrets/airflow_jwt_secret
+  airflow_users:
+    file: ../../.local/secrets/airflow_users.json

@@ -1,6 +1,6 @@
 # Roadmap de implementación
 
-Fase 0 completada. F1-06 funcionalmente completada y verificada, con cierre documental y operativo completado: un modelo global, MLflow e inferencia FastAPI; no liberar meses ni avanzar a Airflow u otra fase. Completar una tarea no autoriza la siguiente.
+F0/F1 completadas. La solicitud F2 autoriza orquestación Airflow manual antes del MVP full-stack: integración implementada y validada mediante DAG seguro; sin publicación mensual ni nuevo entrenamiento real. No avanzar a otra fase ni crear commits/push. Completar una tarea no autoriza la siguiente.
 
 ## Fase 0 — Foundation
 
@@ -32,9 +32,20 @@ F1-05 excluyó MLflow; la solicitud posterior F1-06 autorizó su incorporación 
 
 ## Preparación de Git local autorizada tras F1-06
 
-Completada la auditoría de .gitignore y la inicialización local en **main**: 708 archivos candidatos revisados, sin staging, commit, remoto o push. No completa F5-01 (GitHub/CI siguen pendientes) ni autoriza Airflow. Próximo paso únicamente tras autorización: primer commit local. Resultados y alcance en PROGRESS.md.
+Auditoría e inicialización en main completadas. Primer commit local autorizado y creado: cf195fcd0358f7284c113dcca6d776aa99d7537e, 708 archivos. Sin remotos/push; GitHub/CI siguen pendientes. F2 se desarrolla sin commits automáticos.
 
-## Fase 2 — MVP full-stack
+## F2 autorizada — Airflow y orquestación end-to-end
+
+| Hecha | ID | Alcance | Evidencia / límites | Estado |
+| --- | --- | --- | --- | --- |
+| [x] | F2-AF01 | Airflow 3.3.2, LocalExecutor, metadatos/logs persistentes | API/UI y componentes healthy, cuatro DAGs registrados | Completada |
+| [x] | F2-AF02 | Autorización y publicación mensual; GOLD incremental compatible | V4, SQL temporal y escritura sintética aislada; no mes real liberado | Implementada y validada en alcance seguro |
+| [x] | F2-AF03 | DAG de entrenamiento y coordinación completa | Reutiliza HGB/MLflow, corte parametrizado y recuperación lógica; sin nuevo ajuste real | Implementada; ejecución mutadora diferida |
+| [x] | F2-AF04 | Ejecución segura y documentación | safe-f2-20261114T012419: cuatro tareas success, corte/v1 intactos | Completada |
+
+El siguiente bloque anterior del roadmap se conserva como objetivo pendiente; esta solicitud no autoriza autenticación comercial ni frontend. AIRFLOW.md documenta las rutas mutadoras que no se ejecutaron por restricción explícita.
+
+## MVP full-stack — pendiente (Fase 2 del roadmap original)
 
 | Hecha | ID | Descripción | Dependencias | Criterio de aceptación | Estado |
 | --- | --- | --- | --- | --- | --- |

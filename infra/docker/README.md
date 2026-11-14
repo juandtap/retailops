@@ -85,3 +85,7 @@ GOLD F1-04B añade migraciones control/data V3 con el mismo runner; no requiere 
 ## F1-06 — MLflow
 
 Perfil `mlops` en compose.mlflow.yaml, backend PostgreSQL y bucket MinIO propios. Preparar secretos MLflow, provisionar y arrancar siguiendo [MLOPS.md](../../docs/MLOPS.md). La imagen se construye con Python fijado y requirements.lock exportado de uv; no monta SOURCE/CSV. No usar los comandos F1-02 de entorno vacío.
+
+## F2 — Airflow manual
+
+Perfil airflow con LocalExecutor y base/metadatos independientes, puerto 8081 y logs persistentes. Preparación, arranque, DAG seguro y autorización mensual futura en [AIRFLOW.md](../../docs/AIRFLOW.md). Sin SOURCE ni Docker socket montados. No lanzar comandos de publicación como parte del arranque; no down -v.

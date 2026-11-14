@@ -21,8 +21,8 @@ INPUTS=CATEGORICAL+NUMERIC
 COLUMNS=','.join('f.'+c for c in ['issue_date','target_date',*INPUTS])
 
 
-def validate_temporal(frame,split):
-    start,end,available=SPLITS[split]
+def validate_temporal(frame,split,plan=None):
+    start,end,available=(plan['splits'] if plan else SPLITS)[split]
     issue=pd.to_datetime(frame.issue_date);target=pd.to_datetime(frame.target_date)
     if not (issue.between(pd.Timestamp(start),pd.Timestamp(end))&frame.horizon.between(1,7)&
             target.eq(issue+pd.to_timedelta(frame.horizon,unit='D'))).all():
@@ -39,9 +39,10 @@ def feature_frame(frame):
     return result
 
 
-def training_chunks(split):
-    if split not in SPLITS:raise ValueError('División no autorizada')
-    start,end,available=SPLITS[split]
+def training_chunks(split,plan=None):
+    splits=plan['splits'] if plan else SPLITS
+    if split not in splits:raise ValueError('División no autorizada')
+    start,end,available=splits[split]
     weekly=" AND extract(isodow FROM f.issue_date)=1 AND f.target_date<=%(available)s" if split=='train' else ''
     query='SELECT '+COLUMNS+''',l.sales::double precision actual
     FROM training.gold_features f LEFT JOIN training.gold_labels l
@@ -49,16 +50,20 @@ def training_chunks(split):
     AND l.store_nbr=f.store_nbr AND l.family=f.family AND l.target_date<=%(available)s
     WHERE f.feature_version=%(version)s AND f.historical_cutoff=%(cutoff)s
     AND f.issue_date BETWEEN %(start)s AND %(end)s'''+weekly+' ORDER BY f.issue_date,f.store_nbr,f.family,f.horizon'
-    maximum=1300000 if split=='train' else 400000
+    if plan:
+        query=query.replace('training.gold_features f','training.gold_features_v2 f').replace('training.gold_labels l','training.gold_labels_v2 l')
+        query=query.replace('l.historical_cutoff=f.historical_cutoff AND ', 'l.historical_cutoff<=%(cutoff)s AND ')
+        query=query.replace('f.historical_cutoff=%(cutoff)s','f.historical_cutoff<=%(cutoff)s')
+    maximum=((end-start).days+1)*54*33*7
     count=0
     with connection() as conn:
         with conn.cursor(name='ml_temporal_split') as cur:
-            cur.execute(query,{'version':VERSION,'cutoff':CUTOFF,'start':start,'end':end,'available':available})
+            cur.execute(query,{'version':plan['version'] if plan else VERSION,'cutoff':plan['cutoff'] if plan else CUTOFF,'start':start,'end':end,'available':available})
             while rows:=cur.fetchmany(20000):
                 count+=len(rows)
                 if count>maximum:raise ValueError('Granularidad inesperada: detener lectura')
                 frame=pd.DataFrame(rows)
-                validate_temporal(frame,split)
+                validate_temporal(frame,split,plan)
                 yield frame
     if not count:raise ValueError('División vacía')
 

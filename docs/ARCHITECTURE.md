@@ -75,3 +75,7 @@ PostgreSQL conserva features point-in-time y etiquetas separadas, versionadas po
 ## ML funcional implementado en F1-06
 
 Entrenamiento Python → GOLD training/trainer → HGB global point-in-time → tracking/registro MLflow → FastAPI con versión explícita y consultas de siete filas. Backend MLflow en base PostgreSQL separada y artefactos en bucket MinIO privado/versionado propio, con identidad restringida; Alembic de MLflow solo administra esa base y Flyway sigue gestionando negocio. No hay Airflow ni integración frontend/Spring de predicciones. Modelo candidato no superior al baseline en MAE/WAPE del holdout, sin promoción de producción. [Operación, contratos y resultados](MLOPS.md).
+
+## F2 — Orquestación implementada
+
+Airflow 3.3.2/LocalExecutor en Compose: API/UI, scheduler y DAG processor, PostgreSQL de metadatos separado y logs persistentes. Cuatro DAGs manuales reutilizan pipelines existentes; autorización SQL operadora por mes y workspace seleccionado fuera del scheduler. V4 añade GOLD incremental append-only y vistas v2 que reutilizan bootstrap, sin modificar v1. Entrenamiento candidato parametrizado e idempotencia lógica, sin promoción de inferencia. Solo se ejecutó DAG seguro sobre bootstrap; no se liberó enero ni se registró otro modelo. [Operación y límites](AIRFLOW.md).

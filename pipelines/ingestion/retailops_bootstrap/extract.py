@@ -137,6 +137,7 @@ def prepare(source,workspace,contract,inventory,ingested_at):
             pending=0
     try:
         for entity,filename in FILES.items():
+            if contract.get('kind')=='MONTHLY' and entity=='stores':continue
             original_hash=source_hashes[filename]['sha256']
             for ordinal,row,raw,header in source_records(source/filename):
                 if entity!='stores':
@@ -156,9 +157,9 @@ def prepare(source,workspace,contract,inventory,ingested_at):
                     families.setdefault(typed['family'],ordinal)
                 add(entity,partition,typed,ordinal,original_hash,raw,header)
         validate_coverage(contract,daily,series,stores,families)
-        if counts['stores']!=contract['expected_stores']:raise ValueError('Número de tiendas auxiliares incorrecto')
+        if contract.get('kind')!='MONTHLY' and counts['stores']!=contract['expected_stores']:raise ValueError('Número de tiendas auxiliares incorrecto')
         train_hash=source_hashes['train.csv']['sha256']
-        for family,ordinal in sorted(families.items()):
+        for family,ordinal in (sorted(families.items()) if contract.get('kind')!='MONTHLY' else []):
             add('families','snapshot=observed-identifiers',{'family':family,'known_from':None,'availability_evidence':None},ordinal,train_hash)
         for missing in contract['accepted_missing_dates']:
             d=date.fromisoformat(missing)
@@ -182,6 +183,8 @@ def prepare(source,workspace,contract,inventory,ingested_at):
                             'publishable':entity in contract['s3_publishable_entities'],'local_path':str(path.relative_to(workspace))})
     for filename,entry in source_hashes.items():
         if sha256(source/filename)!=entry['sha256']:raise ValueError('SOURCE cambió durante extracción')
+    if contract.get('kind')=='MONTHLY':
+        for entity in FIELDS:counts.setdefault(entity,0)
     result={'batch_id':contract['batch_id'],'contract_sha256':canonical_hash(contract),'ingested_at':ingested_at,
             'counts':dict(sorted(counts.items())),'totals':{k:str(v) if isinstance(v,Decimal) else v for k,v in totals.items()},'monthly_sales':{key:sum(n for d,n in daily.items() if d.startswith(key)) for key in sorted({d[:7] for d in daily})},
             'sources':[source_hashes[n] for n in FILES.values()], 'objects':objects}

@@ -4,9 +4,32 @@ Fecha: 2026-11-13, America/Guayaquil.
 
 ## Estado actual
 
-Foundation y F1-01 a F1-06 completadas en sus alcances autorizados. **F1-06: ML y MLOps funcional**, verificada con modelo global, evaluación temporal, registro MLflow y predicción HTTP real; cierre documental y operativo completado. El candidato no supera al baseline semanal en MAE/WAPE del holdout; no está promovido a producción. Corte 2014-12-31 intacto. Git local auditado e inicializado en main por autorización posterior; sin commit ni remoto. No avanzar al primer commit, Airflow, lotes mensuales u otra fase sin autorización.
+F0/F1 completadas. F2 Airflow y orquestación manual implementada con validación segura real. Git main parte del commit cf195fcd0358f7284c113dcca6d776aa99d7537e; cambios actuales sin commit/push. Corte **2014-12-31**, cero meses nuevos liberados y MLflow v1 intacto. No se entrenó ni registró otro modelo. No avanzar a otra fase.
 
-## Preparación Git local — completada, sin commit
+## F2 — Airflow y orquestación end-to-end
+
+La solicitud actual anticipa Airflow respecto al roadmap original y se registró el ajuste antes de implementar. Se revisaron instrucciones, arquitectura/decisiones, almacenamiento/features/MLOps y scripts reales: no existía publicador mensual y GOLD v1 rechazaba cortes distintos. Se conservó v1 y se implementaron adaptadores/contrato v2.
+
+- Airflow **3.3.2/Python 3.12**, imagen oficial por digest, Compose modular: API/UI loopback 8081, scheduler LocalExecutor y DAG processor; sin Celery/Redis. Base/identidad retailops_airflow independientes, logs en volumen nombrado y autenticación SimpleAuthManager con secretos privados persistentes. Entornos uv aislados de ingesta/ML, sin mezclar dependencias con Airflow ni montar SOURCE/Docker socket.
+- Cuatro DAGs manuales schedule=None: retailops_monthly_release, retailops_train_candidate, retailops_full_pipeline y retailops_validate_existing. Pool global de un slot, max_active_runs=1, dependencias all_success y reintentos acotados.
+- Control/data **V4 nuevas**, aplicadas con Flyway único, V1/V2/V3 intactas. Autorización operadora explícita no disponible en contenedores; trigger exige siguiente mes. El operador prepara solo el workspace seleccionado con extractor existente; DAG ingiere/publica reutilizando recuperación SQL/S3. GOLD v2 append-only reutiliza bootstrap por vistas UNION ALL, sin recalcular/copiar nueve millones de filas. Se bloquea otra autorización si GOLD del mes anterior está pendiente.
+- ML existente parametrizado por corte, dataset semanal y validación/evaluación anteriores al corte; contrato v2 explícito. Identidad lógica, checkpoints y recuperación de run/versión impiden duplicación normal; ambigüedad o ajuste iniciado sin checkpoint falla para revisión. Candidatos separados de inferencia v1, sin promoción automática.
+- **DAG real seguro safe-f2-20261114T012419: success**, cuatro tareas success al primer intento (historical_state, gold_contract, registered_model, dependencies). UI GET 200 y API autenticada; DAG processor reportó cuatro DAGs y cero errores de importación. Evidencia .local/airflow/execution.json, metadatos/logs persistentes.
+- Comprobación posterior: bootstrap RELEASED/COMPLETE, corte 2014-12-31; autorizaciones mensuales 0, meses nuevos liberados 0, features/etiquetas incrementales productivas 0. Vista v2 expone las 9 106 020 filas bootstrap sin copiarlas. Registro MLflow conserva solo v1 READY/run 55257fc2ce414793b73b9d0df4c95fbb; resultados/evidencias F1-06 preservados (HGB no supera baseline en MAE/WAPE).
+- Pruebas mínimas: **3 unittest nuevos aprobados** (secuencia/autorización, extremos futuros, escritura/idempotencia en DB sintética propia eliminada después), **2 pytest nuevos aprobados** (plan temporal y retry de candidato sin ajustar/registrar), carga de DAGs vía CLI/API y flujo seguro real. No se repitieron suites de fases previas ni notebooks. Maven únicamente `-DskipTests package` para SQL, sin Java/JUnit modificados.
+- Recursos: muestras API 272,2 MiB, scheduler 315,9 MiB, processor 163,3 MiB (~751 MiB total); límites 1/3/1 GiB y 2 CPU cada uno. No son picos ni incluyen PostgreSQL/MinIO/MLflow o un entrenamiento futuro.
+
+Archivos: nuevas V4 control/data; pipelines/orchestration/{core,incremental_gold}.py y pruebas; adaptaciones mínimas extractor/register/cliente bootstrap; apps/ml-service/app/{plan,orchestrated}.py, cambios parametrizados data/training y test_orchestrated.py; infra/airflow/dags/retailops.py; compose.airflow.yaml, Dockerfile/start.py y Compose raíz/.dockerignore; scripts/airflow_infra.py y airflow_smoke.py; contrato gold-features-v2.json; docs/AIRFLOW.md y AGENTS/ROADMAP/PROGRESS/DECISIONS/ARCHITECTURE, README infra, .env.example. Sin frontend, GitHub/CI, Kubernetes u observabilidad.
+
+Problemas resueltos: entrypoint oficial necesario para NSS/UID; password file SimpleAuthManager requiere copia privada escribible; healthcheck CLI independiente perdía DSN y consultaba SQLite, sustituido por heartbeat API. Inspección DagBag inicial usó firma antigua; se sustituyó por CLI y registro real del processor. No se abrieron permisos ni se regeneraron secretos existentes.
+
+Límites: publicación mensual productiva, nuevo entrenamiento v2 y recuperación S3 mensual no se ejecutaron por restricción; se verificaron código/conexión, autorización, fixtures aisladas y coordinación real segura. No se afirma rendimiento de un candidato nuevo ni backup/restore/seguridad multiusuario. La v1 inferida sigue fija, candidatos v2 no son aprobación de producción. Comandos, recuperación y límites en AIRFLOW.md.
+
+### Cierre operativo F2
+
+Los seis servicios iniciados (Airflow API, scheduler, DAG processor, PostgreSQL, MinIO y MLflow) se detuvieron mediante Compose. `docker compose ps -a` confirmó **exited, código 0** para los seis, conservando contenedores, volúmenes, metadatos, logs y artefactos. Solo se ejecutó el DAG seguro; sin publicación/entrenamiento/registro real. Los cambios permanecen locales sobre el commit inicial, sin commit/push.
+
+## Preparación Git local — historial previo al commit inicial
 
 Autorización explícita posterior al cierre F1-06 para auditar exclusiones e inicializar Git local, sin remoto, push ni commit. Se revisaron instrucciones, arquitectura/decisiones, roadmap/progreso, configuraciones del stack y archivos reales.
 
@@ -405,7 +428,7 @@ No se repitieron builds ni suites de las aplicaciones: no se modificó código n
 
 ## Próxima tarea exacta
 
-**Esperar autorización para el primer commit local**, reutilizando la auditoría y comprobando cambios posteriores antes de añadir archivos. No configurar remotos ni publicar. Airflow y otras fases siguen sin autorización; no se inició trabajo adicional.
+**F2 terminada en el alcance autorizado; detenerse y esperar revisión.** Sin nuevos commits/push ni otra fase automática. Publicar enero o ejecutar entrenamiento candidato real requiere una acción/autorización posterior explícita; no se hizo en este bloque. El MVP comercial y autenticación siguen pendientes.
 
 ## Historial: Fase 0 completada
 

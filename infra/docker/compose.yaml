@@ -3,6 +3,7 @@ include:
   - compose.postgres.yaml
   - compose.minio.yaml
   - compose.mlflow.yaml
+  - compose.airflow.yaml
 networks:
   data:
     driver: bridge

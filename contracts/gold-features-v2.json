@@ -1,0 +1,14 @@
+{
+ "contract_version":2,
+ "feature_version":"sales-pit-v2",
+ "compatibility":"Same numeric/calendar/lag/rolling semantics as gold-features-v1; bootstrap rows reused, not recomputed",
+ "features_view":"training.gold_features_v2",
+ "labels_view":"training.gold_labels_v2",
+ "snapshot_semantics":"historical_cutoff is the first release/materialization of each immutable issue block, not a duplicated full snapshot",
+ "selection":"feature historical_cutoff <= requested released snapshot; label target_date <= fit/evaluation availability and historical_cutoff <= snapshot",
+ "incremental":"Only issue dates in newly released month, plus 27 calendar days read context; final partial month ends at observed_end",
+ "labels":"Separate, append-only, absent dates stay absent; never COALESCE to zero",
+ "idempotency":"One transaction per new month, shared publication lock, code hash and bidirectional EXCEPT; no updates to v1",
+ "authorization":"operator-only SQL authorization required before monthly staging; no scheduled releases",
+ "source":"training.sales only; no unknown auxiliaries or global profiling statistics"
+}

@@ -104,3 +104,13 @@ FastAPI fija versión registrada, valida contrato y obtiene features de training
 ## ADR-023 — Git local anticipado, sin publicación
 
 Autorización explícita después del cierre F1-06 para preparar el repositorio antes de Airflow: auditoría adaptada de .gitignore e inicialización en main. Sin staging, primer commit, remotos o push; no equivale a ejecutar GitHub Actions ni completar F5-01. Versionar código/locks/contratos/configuración segura/notebooks fuente e informes agregados revisados; excluir datasets completos, secretos, modelos serializados y runtime. Revisión básica de candidatos sin coincidencias con secretos reales conocidos; futuras adiciones requieren la misma revisión.
+
+## ADR-024 — F2 orquestación manual e incremental compatible
+
+La solicitud actual autoriza Airflow antes del MVP full-stack del roadmap; se añade un bloque F2 de orquestación sin marcar autenticación/frontend como hechos. Airflow 3 con LocalExecutor, metadatos PostgreSQL independientes y tres procesos (API, scheduler, DAG processor), sin Celery/Redis.
+
+GOLD v1 y su contrato permanecen inmutables. V4 añade tablas append-only y vistas training v2 que reutilizan bootstrap mediante UNION ALL, sin copiar/recalcular nueve millones de filas. Cada bloque nuevo conserva su corte de primera disponibilidad; las etiquetas se añaden separadamente. Semántica de features compatible, versión de contrato v2 explícita.
+
+La autorización de cada mes se emite con una identidad operadora no montada en Airflow; trigger SQL exige autorización y secuencia. El extractor existente prepara el workspace seleccionado como parte del comando manual del operador, fuera de Airflow; los DAGs no montan SOURCE. Airflow ingiere y publica únicamente ese workspace autorizado, reutilizando el protocolo recuperable. Esto conserva la separación extractor/cargador y evita dar el CSV completo al runtime ML; no requiere Docker socket ni workers distribuidos.
+
+Entrenamiento independiente sin promoción automática. Las ejecuciones lógicas conservan checkpoints y asociación a runs/versiones para recuperar reintentos; si una asociación es ambigua se detiene en lugar de reentrenar o registrar duplicados. La comprobación real del bloque usa un DAG seguro de solo lectura, sin autorización mensual, publicación ni nuevo entrenamiento.

@@ -48,7 +48,7 @@ class Settings:
 
     def db(self,role):
         if role not in ('ingestor','releaser','trainer'):raise ValueError('Rol de trabajo no permitido')
-        return psycopg.connect(host='127.0.0.1',port=self.pg_port,dbname=self.database,user='retailops_'+role,
+        return psycopg.connect(host=os.environ.get('RETAILOPS_PG_HOST','127.0.0.1'),port=self.pg_port,dbname=self.database,user='retailops_'+role,
              password=self.secret('pg_'+role+'_password'),autocommit=True,row_factory=dict_row)
 
     def s3(self,role):

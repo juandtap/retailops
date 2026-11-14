@@ -52,7 +52,7 @@ def register(conn,prepared,contract):
             conn.execute('INSERT INTO control.source_files(sha256,filename,size_bytes) VALUES(%s,%s,%s) ON CONFLICT DO NOTHING',(source['sha256'],source['file'],source['bytes']))
             actual=conn.execute('SELECT filename,size_bytes FROM control.source_files WHERE sha256=%s',(source['sha256'],)).fetchone()
             if actual!={'filename':source['file'],'size_bytes':source['bytes']}:raise ConflictError('Procedencia conflictiva')
-        conn.execute("INSERT INTO control.batches(batch_id,kind,entity,period_start,period_end,row_count) VALUES(%s,'BOOTSTRAP','sales',%s,%s,%s) ON CONFLICT(batch_id) DO NOTHING",(batch,contract['period_start'],contract['period_end'],contract['expected_sales']))
+        conn.execute("INSERT INTO control.batches(batch_id,kind,entity,period_start,period_end,row_count) VALUES(%s,%s,'sales',%s,%s,%s) ON CONFLICT(batch_id) DO NOTHING",(batch,contract.get('kind','BOOTSTRAP'),contract['period_start'],contract['period_end'],contract['expected_sales']))
         existing=conn.execute('SELECT * FROM control.batches WHERE batch_id=%s',(batch,)).fetchone()
         if existing['period_start'].isoformat()!=contract['period_start'] or existing['period_end'].isoformat()!=contract['period_end'] or existing['row_count']!=contract['expected_sales']:
             raise ConflictError('Lote existente incompatible')
