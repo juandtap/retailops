@@ -2,7 +2,7 @@
 
 ## Alcance y estado real
 
-Aplicación local-first en un único equipo. La Fase 0 contiene tres procesos independientes: React/TailAdmin, Spring Boot con Actuator y FastAPI con `/health`. Hay configuración de proxy Vite `/api` → Spring con eliminación del prefijo. Actualmente existe el bootstrap 2013–2014 en PostgreSQL/MinIO. No hay integraciones comerciales full-stack ni autenticación de aplicación; F1-06 incorpora un modelo candidato global y su inferencia; F1-02 añadió almacenamiento y F1-03 lo cargó/publicó.
+Aplicación local-first en un único equipo. La Fase 0 contiene tres procesos independientes: React/TailAdmin, Spring Boot con Actuator y FastAPI con `/health`. Hay configuración de proxy Vite `/api` → Spring con eliminación del prefijo. Actualmente existe el bootstrap 2013–2014 en PostgreSQL/MinIO. F3 incorpora integración local de lectura React → Spring → FastAPI, estado Airflow con viewer y demo candidata explícita; no hay autenticación comercial de aplicación; F1-06 incorpora un modelo candidato global y su inferencia; F1-02 añadió almacenamiento y F1-03 lo cargó/publicó.
 
 F1-01 añade `pipelines/ingestion/retailops_profiling`: inspección reproducible de CSV en bloques con Python 3.12/uv y SQLite temporal de la biblioteca estándar para agregación, unicidad y relaciones. Sus salidas son informes y un manifiesto descriptivo sin liberación. No se conecta a los servicios ni crea tablas PostgreSQL, particiones o capas transformadas. El perfil de toda la fuente no es una estadística autorizada para entrenar al corte inicial.
 
@@ -79,3 +79,7 @@ Entrenamiento Python → GOLD training/trainer → HGB global point-in-time → 
 ## F2 — Orquestación implementada
 
 Airflow 3.3.2/LocalExecutor en Compose: API/UI, scheduler y DAG processor, PostgreSQL de metadatos separado y logs persistentes. Cuatro DAGs manuales reutilizan pipelines existentes; autorización SQL operadora por mes y workspace seleccionado fuera del scheduler. V4 añade GOLD incremental append-only y vistas v2 que reutilizan bootstrap, sin modificar v1. Entrenamiento candidato parametrizado e idempotencia lógica, sin promoción de inferencia. Solo se ejecutó DAG seguro sobre bootstrap; no se liberó enero ni se registró otro modelo. [Operación y límites](AIRFLOW.md).
+
+## F3 integrada
+
+[Operación y contratos HTTP](APPLICATION.md). nginx sirve React y envía `/api` a Spring; Java valida ventanas y consulta training con rol API, delegando inferencia a Python. Solo FastAPI descarga el modelo v1 mediante MLflow y consulta GOLD autorizado con trainer. Airflow entrega resúmenes mediante una identidad viewer separada; no hay mutaciones desde la aplicación. La caché de inferencia usa volumen independiente, sin SOURCE ni secretos administrativos montados. Los servicios app añaden límites de 1 GiB + 768 MiB + 128 MiB a la infraestructura existente.

@@ -1,6 +1,6 @@
 # Roadmap de implementación
 
-F0/F1 completadas. La solicitud F2 autoriza orquestación Airflow manual antes del MVP full-stack: integración implementada y validada mediante DAG seguro; sin publicación mensual ni nuevo entrenamiento real. No avanzar a otra fase ni crear commits/push. Completar una tarea no autoriza la siguiente.
+F0/F1/F2 completadas en sus alcances registrados. F2 commit local 8f753a3; F3 integración local React/Spring/FastAPI implementada y verificada, sin commit. No hay publicación mensual, nuevo entrenamiento ni promoción. Detenerse antes de otra fase, sin push/pull. Completar una tarea no autoriza la siguiente.
 
 ## Fase 0 — Foundation
 
@@ -43,7 +43,18 @@ Auditoría e inicialización en main completadas. Primer commit local autorizado
 | [x] | F2-AF03 | DAG de entrenamiento y coordinación completa | Reutiliza HGB/MLflow, corte parametrizado y recuperación lógica; sin nuevo ajuste real | Implementada; ejecución mutadora diferida |
 | [x] | F2-AF04 | Ejecución segura y documentación | safe-f2-20261114T012419: cuatro tareas success, corte/v1 intactos | Completada |
 
-El siguiente bloque anterior del roadmap se conserva como objetivo pendiente; esta solicitud no autoriza autenticación comercial ni frontend. AIRFLOW.md documenta las rutas mutadoras que no se ejecutaron por restricción explícita.
+El bloque original se conserva como referencia comercial; F3 autoriza posteriormente la integración local de lectura, sin autenticación comercial. AIRFLOW.md documenta las rutas mutadoras que no se ejecutaron por restricción explícita.
+
+## F3 autorizada — Aplicación integrada local
+
+| Hecha | ID | Alcance | Evidencia / límite | Estado |
+| --- | --- | --- | --- | --- |
+| [x] | F3-APP01 | Spring: estado, catálogos, ventas, modelo, predicción y Airflow | Datos reales del bootstrap; validación temporal y viewer | Completada |
+| [x] | F3-APP02 | React/TailAdmin: cinco pantallas y gráficos | APIs reales, estados de carga/error/vacío; candidato explícito | Completada |
+| [x] | F3-APP03 | Compose integrado y smoke real | Nueve servicios; inferencia siete días y fallo ML controlado | Completada |
+| [x] | F3-APP04 | Documentación y cierre conservador | APPLICATION.md y evidencia privada; cambios sin commit | Completada |
+
+F2 commit local `8f753a3`; F3 sin commit. No se autoriza la siguiente fase. Autenticación y roles comerciales del bloque original siguen pendientes. No se liberaron lotes ni entrenaron/promovieron modelos.
 
 ## MVP full-stack — pendiente (Fase 2 del roadmap original)
 

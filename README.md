@@ -159,3 +159,5 @@ uv run --project notebooks --locked python notebooks/lab.py
 F1-04B requiere autorización posterior.
 
 GOLD point-in-time F1-04B: [contrato, ejecución y resultados](docs/FEATURE_ENGINEERING.md), con siete horizontes y etiquetas separadas al corte 2014-12-31. No hay modelos entrenados.
+
+Aplicación integrada F3: [inicio, endpoints y smoke real](docs/APPLICATION.md).

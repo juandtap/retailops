@@ -16,7 +16,7 @@ Plataforma local de análisis y predicción minorista a siete días por tienda y
 - No introducir tecnologías importantes ni sustituir el stack sin aprobación.
 
 ## Restricciones
-- F2 autoriza Airflow 3/LocalExecutor, DAGs manuales y ampliación incremental, sin liberar enero de 2015 ni cambiar el corte 2014-12-31 en este bloque. Verificar con DAG seguro y fixtures aisladas, sin nuevo entrenamiento/registro real. No avanzar a frontend/otras fases.
+- F2 completada; F3 autoriza la aplicación integrada local React/Spring/FastAPI con consultas e inferencia candidata explícita, sin liberar meses, entrenar, registrar o promover modelos. No avanzar a CI, K3s, Helm ni observabilidad.
 - No inicializar Git, crear repositorios remotos ni publicar/subir archivos sin autorización.
 - No alterar ni descargar nuevamente `data/source/favorita/*.csv`; nunca versionar datasets, secretos o `.env` reales.
 - No instalar servicios de infraestructura en el SO ni modificar Python del sistema.
@@ -46,3 +46,5 @@ Para F1-06 leer docs/MLOPS.md. SQL del ajuste/inferencia solo trainer sobre trai
 Git en main, commit inicial cf195fcd0358f7284c113dcca6d776aa99d7537e creado con autorización explícita. Conservar .gitignore de RetailOps: nunca añadir .local, secretos, datasets completos, modelos, logs o entornos virtuales. Revisar candidatos/secretos antes de cualquier staging; no crear nuevos commits, remotos, push o pull automáticamente.
 
 Para F2 leer docs/AIRFLOW.md. Autorización mensual con identidad operadora fuera de Airflow, extractor fuera del scheduler, workspace seleccionado RO. V4 y vistas v2 preservan v1; no editar migraciones aplicadas ni recalcular bootstrap por mes. Solo pruebas esenciales de orquestación y DAG seguro; detener servicios inicialmente parados al cerrar, sin eliminar volúmenes.
+
+F2 commit local autorizado 8f753a3. F3 queda sin commit para revisión; consultar docs/APPLICATION.md. Frontend solo accede a Spring; acceso Airflow viewer, SQL retailops_api/trainer en lectura. La demo v1 requiere consentimiento y nunca implica aprobación. Detener los servicios iniciados al cerrar, conservando volúmenes.

@@ -1,0 +1,98 @@
+services:
+  ml-service:
+    image: retailops-ml-service:local-v1
+    build:
+      context: ../..
+      dockerfile: infra/docker/app/Dockerfile.ml
+    profiles: [app]
+    environment:
+      ML_MODEL_VERSION: "1"
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_ALLOW_MODEL_CODE_EXECUTION: "true"
+      EDA_PG_HOST: postgres
+      EDA_PG_PORT: "5432"
+    secrets:
+      - source: pg_trainer_password
+        target: /opt/retailops/.local/secrets/pg_trainer_password
+    volumes: [ml_inference_cache:/opt/retailops/.local/mlops]
+    networks: [data]
+    depends_on:
+      mlflow:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/model',timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    mem_limit: 1g
+    cpus: 2
+    pids_limit: 256
+    restart: "no"
+    security_opt: [no-new-privileges:true]
+  api:
+    image: retailops-api:local-v1
+    build:
+      context: ../..
+      dockerfile: infra/docker/app/Dockerfile.api
+    profiles: [app]
+    environment:
+      SPRING_PROFILES_ACTIVE: integrated
+      API_HOST: 0.0.0.0
+      API_PORT: "8080"
+      APP_DB_URL: jdbc:postgresql://postgres:5432/retailops?connectTimeout=3&socketTimeout=10
+      APP_SECRETS_DIR: /run/secrets
+      ML_SERVICE_URL: http://ml-service:8000
+      AIRFLOW_API_URL: http://airflow-api:8080
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MINIO_API_URL: http://minio:9000
+      CANDIDATE_DEMO_ENABLED: ${CANDIDATE_DEMO_ENABLED:-true}
+    secrets:
+      - pg_api_password
+      - source: airflow_reader
+        target: airflow_reader.json
+    networks: [data]
+    depends_on:
+      ml-service:
+        condition: service_healthy
+      airflow-api:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD-SHELL, "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080; printf \"GET /actuator/health HTTP/1.0\\r\\n\\r\\n\" >&3; head -1 <&3 | grep -q 200'"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    mem_limit: 768m
+    cpus: 2
+    pids_limit: 256
+    restart: "no"
+    security_opt: [no-new-privileges:true]
+  web:
+    image: retailops-web:local-v1
+    build:
+      context: ../..
+      dockerfile: infra/docker/app/Dockerfile.web
+    profiles: [app]
+    ports: ["127.0.0.1:${APP_PORT:-5173}:80"]
+    networks: [data]
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD-SHELL, 'wget -q -O /dev/null http://127.0.0.1/']
+      interval: 10s
+      timeout: 4s
+      retries: 10
+    mem_limit: 128m
+    cpus: 1
+    pids_limit: 128
+    restart: "no"
+    security_opt: [no-new-privileges:true]
+volumes:
+  ml_inference_cache:
+secrets:
+  airflow_reader:
+    file: ../../.local/secrets/airflow_reader.json

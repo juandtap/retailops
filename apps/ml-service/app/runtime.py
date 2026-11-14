@@ -12,8 +12,8 @@ from .data import ROOT,VERSION,CUTOFF,FIT_DATE,INPUTS,feature_frame,inference_fe
 MODEL_NAME='retailops-sales-global'
 
 class ModelRuntime:
-    def __init__(self,model,version,run_id,metadata):
-        self.model=model;self.version=str(version);self.run_id=run_id;self.metadata=metadata
+    def __init__(self,model,version,run_id,metadata,metrics=None):
+        self.model=model;self.version=str(version);self.run_id=run_id;self.metadata=metadata;self.metrics=metrics or {}
 
     @classmethod
     def load(cls,version):
@@ -27,12 +27,15 @@ class ModelRuntime:
             raise ValueError('Modelo y contrato temporal incompatibles')
         cache=ROOT/'.local/mlops/models'/str(version);cache.mkdir(parents=True,exist_ok=True,mode=0o700)
         model=mlflow.sklearn.load_model(uri,dst_path=str(cache))
-        return cls(model,version,registered.run_id,metadata)
+        run_metrics=MlflowClient().get_run(registered.run_id).data.metrics
+        allowed={f'{split}_{method}_{metric}' for split in ('validation','evaluation') for method in ('hgb','seasonal_naive_7') for metric in ('mae','wape','rmsle')}
+        metrics={k:float(v) for k,v in run_metrics.items() if k in allowed and np.isfinite(v)}
+        return cls(model,version,registered.run_id,metadata,metrics)
 
     def information(self):
         return {'name':MODEL_NAME,'version':self.version,'run_id':self.run_id,
           'feature_version':VERSION,'historical_cutoff':str(CUTOFF),'fit_date':str(FIT_DATE),
-          'purpose':'candidate_local_preview','production_approved':False}
+          'purpose':'candidate_local_preview','production_approved':False,'metrics':self.metrics}
 
     def predict(self,frame):
         # Selección explícita: nunca consume etiquetas ni features recibidas por HTTP.

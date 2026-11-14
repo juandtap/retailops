@@ -4,7 +4,21 @@ Fecha: 2026-11-13, America/Guayaquil.
 
 ## Estado actual
 
-F0/F1 completadas. F2 Airflow y orquestación manual implementada con validación segura real. Git main parte del commit cf195fcd0358f7284c113dcca6d776aa99d7537e; cambios actuales sin commit/push. Corte **2014-12-31**, cero meses nuevos liberados y MLflow v1 intacto. No se entrenó ni registró otro modelo. No avanzar a otra fase.
+F0/F1/F2 completadas en sus alcances registrados. F2 commit local **8f753a3** (`feat: integrate Airflow orchestration and incremental GOLD`), 30 archivos tras auditoría sin secretos/datasets/modelos/logs. F3 aplicación integrada implementada y verificada con datos reales; cambios locales sin commit, sin remoto/push/pull. Corte **2014-12-31**, cero meses liberados; modelo v1 candidato intacto.
+
+## F3 — Aplicación funcional integrada
+
+- Spring `/v1`: plataforma, histórico/lotes, tiendas/familias, ventas paginadas, modelo/métricas, pipelines y predicción delegada a FastAPI. DTOs, parámetros preparados, errores seguros y límites temporales/HTTP/SQL. Rol API read-only sobre training/metadatos, sin migraciones. Airflow viewer con credencial privada separada; consulta cuatro DAGs y tres runs por DAG, sin trigger.
+- React/TailAdmin conserva layout/licencia y añade dashboard, explorador de ventas con gráfico de página, pronósticos, modelo y pipelines; carga/vacío/error, filtros y consentimiento candidato. Claves en los cuatro catálogos existentes. Sin navegador → PostgreSQL/MLflow ni credenciales VITE.
+- Compose modular añade FastAPI, Spring y nginx/React; nueve servicios healthy en validación. Puertos internos ML/Java no publicados; acceso web loopback 5173. Caché de inferencia persistente independiente, secretos de mínimo acceso, límites de memoria. Helper de conexión EDA admite DNS Docker `postgres` conservando trainer/consultas read-only; no se ejecutaron notebooks.
+- Validación real: bootstrap RELEASED/COMPLETE 1 297 296 filas, 54 tiendas/33 familias, corte 2014-12-31; ventas tienda 1/GROCERY I diciembre: 30 observaciones y 25 ausente. Histórico posterior al corte rechazado (400); demo sin consentimiento (409); predicción real siete días con v1 y sin aprobación. Parada de FastAPI produjo 503 ML_UNAVAILABLE y recuperación del mismo v1. Respuestas contrastadas con secretos locales sin coincidencias.
+- Predicción emisión 2014-12-31, tienda 1/GROCERY I, enero 1…7: 10.53490163; 2343.58832739; 1791.86781423; 931.47117528; 1865.60140568; 2814.96193602; 2814.96193602. Son predicciones, no datos observados liberados.
+- MLflow run 55257fc2ce414793b73b9d0df4c95fbb/version 1: HGB MAE 125.633166/WAPE 0.2619214115/RMSLE 0.522605386; Seasonal Naïve 120.912959/0.252080672/0.573126019. **HGB no supera MAE/WAPE del holdout**, no hay modelo aprobado; demo explícita no modifica registro.
+- Pruebas mínimas: cuatro casos JUnit relevantes verificados (tres pasan en primera ejecución, consentimiento corregido y caso reejecutado correctamente); un pytest de carga/inferencia pasa; build/lint React pasan con advertencias heredadas y bundle ApexCharts grande. Smoke reproducible `python scripts/smoke_application.py --check-ml-outage`, evidencia privada `.local/application/smoke.json`. No se repitieron suites completas ni se entrenó/registró.
+
+Archivos: API clases Platform/History/External/DTO/errores, perfil integrated y JUnit; runtime ML/métricas y prueba puntual; frontend rutas/sidebar/páginas/catálogos; Dockerfiles/nginx/compose.app; scripts prepare_app/smoke_application; helper conexión EDA; AGENTS, arquitectura/decisiones/roadmap/progreso y APPLICATION.md. [Comandos, endpoints y límites](APPLICATION.md).
+
+Pendiente fuera de alcance: autenticación comercial ADMIN/ANALYST, aprobación/promoción real del modelo, ingesta mensual productiva y fases DevOps. La aplicación local no representa seguridad multiusuario ni disponibilidad productiva. No avanzar sin nueva autorización.
 
 ## F2 — Airflow y orquestación end-to-end
 
@@ -27,7 +41,7 @@ Límites: publicación mensual productiva, nuevo entrenamiento v2 y recuperació
 
 ### Cierre operativo F2
 
-Los seis servicios iniciados (Airflow API, scheduler, DAG processor, PostgreSQL, MinIO y MLflow) se detuvieron mediante Compose. `docker compose ps -a` confirmó **exited, código 0** para los seis, conservando contenedores, volúmenes, metadatos, logs y artefactos. Solo se ejecutó el DAG seguro; sin publicación/entrenamiento/registro real. Los cambios permanecen locales sobre el commit inicial, sin commit/push.
+Los seis servicios iniciados (Airflow API, scheduler, DAG processor, PostgreSQL, MinIO y MLflow) se detuvieron mediante Compose. `docker compose ps -a` confirmó **exited, código 0** para los seis, conservando contenedores, volúmenes, metadatos, logs y artefactos. Solo se ejecutó el DAG seguro; sin publicación/entrenamiento/registro real. Este cierre precedió al commit F2 autorizado posteriormente: 8f753a3, sin push.
 
 ## Preparación Git local — historial previo al commit inicial
 
@@ -508,3 +522,7 @@ Pruebas API: arranque de contexto; salud sin detalles sensibles; probes; rechazo
 
 Todos los criterios de F0-01 a F0-07 se verificaron; ROADMAP actualizado. No se inicia una fase nueva. Los comandos de compilación y las suites pueden repetirse con las instrucciones de README.
 
+
+Verificación Chromium/Playwright temporal: cinco pantallas con respuestas HTTP reales 200, gráficos, 30 filas históricas, consentimiento obligatorio, siete predicciones y viewport móvil 390 px sin desbordamiento ni errores JavaScript. Evidencia y capturas privadas en `.local/application/{browser.json,dashboard.png,sales.png,forecast.png,mobile.png}`. La primera espera del comprobador se corrigió para opciones HTML nativas ocultas; no era un fallo de la aplicación.
+
+Cierre operativo F3 verificado con `docker compose ps -a`: los nueve servicios (PostgreSQL, MinIO, MLflow, Airflow API/scheduler/dag processor, FastAPI, Spring y web) quedaron exited. Ocho con código 0; Java con 143 (terminación SIGTERM de Compose). Se conservaron contenedores, volúmenes, datos y artefactos; evidencia privada `services-stopped.json`. Cambios F3 sin commit.

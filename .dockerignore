@@ -38,3 +38,11 @@
 !docs/
 !docs/DATA_BATCH_MANIFEST.json
 !docs/DATA_INVENTORY.json
+!infra/docker/app/
+!infra/docker/app/*
+!apps/api/
+!apps/api/target/
+!apps/api/target/api-0.0.1-SNAPSHOT.jar
+!apps/web/
+!apps/web/dist/
+!apps/web/dist/**

@@ -39,7 +39,7 @@ def test_model_load_and_inference_contract(tmp_path,monkeypatch):
     path=tmp_path/'model.joblib';joblib.dump(model,path)
     metadata={'feature_version':VERSION,'historical_cutoff':'2014-12-31','fit_date':str(FIT_DATE),
       'contract_sha256':hashlib.sha256((ROOT/'contracts/gold-features-v1.json').read_bytes()).hexdigest(),'inputs':INPUTS}
-    monkeypatch.setattr('app.runtime.MlflowClient',lambda:SimpleNamespace(get_model_version=lambda *args:SimpleNamespace(run_id='test-run')))
+    monkeypatch.setattr('app.runtime.MlflowClient',lambda:SimpleNamespace(get_model_version=lambda *args:SimpleNamespace(run_id='test-run'),get_run=lambda *args:SimpleNamespace(data=SimpleNamespace(metrics={'evaluation_hgb_mae':2.5,'internal_secret_field':99}))))
     monkeypatch.setattr('app.runtime.mlflow.models.get_model_info',lambda uri:SimpleNamespace(metadata=metadata))
     monkeypatch.setattr('app.runtime.mlflow.sklearn.load_model',lambda *args,**kwargs:joblib.load(path))
     runtime=ModelRuntime.load('1')
@@ -47,6 +47,7 @@ def test_model_load_and_inference_contract(tmp_path,monkeypatch):
     with TestClient(create_app(loader=lambda:runtime)) as client:
         assert client.get('/health').status_code==200
         assert client.get('/model').json()['version']=='1'
+        assert client.get('/model').json()['metrics']=={'evaluation_hgb_mae':2.5}
         request={'issue_date':'2014-12-31','store_nbr':1,'family':'TEST'}
         response=client.post('/predict',json=request)
         assert response.status_code==200,response.text

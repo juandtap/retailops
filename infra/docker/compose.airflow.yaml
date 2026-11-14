@@ -13,7 +13,7 @@ x-airflow: &airflow
     AIRFLOW__CORE__PARALLELISM: "2"
     AIRFLOW__CORE__MAX_ACTIVE_TASKS_PER_DAG: "1"
     AIRFLOW__CORE__AUTH_MANAGER: airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager
-    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: admin:admin
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: admin:admin,retailops_viewer:viewer
     AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/config/users.json
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api:8080/execution/
     AIRFLOW__API__BASE_URL: http://localhost:${AIRFLOW_PORT:-8081}

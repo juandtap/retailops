@@ -4,6 +4,7 @@ include:
   - compose.minio.yaml
   - compose.mlflow.yaml
   - compose.airflow.yaml
+  - compose.app.yaml
 networks:
   data:
     driver: bridge

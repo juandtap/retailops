@@ -32,8 +32,8 @@ class Config:
                    password_file=Path(os.environ.get('EDA_PASSWORD_FILE',str(ROOT/'.local/secrets/pg_trainer_password'))))
 
     def validate(self):
-        if self.host not in ('127.0.0.1','localhost') or not 1<=self.port<=65535:
-            raise ValueError('El EDA solo admite PostgreSQL local y puerto válido')
+        if self.host not in ('127.0.0.1','localhost','postgres') or not 1<=self.port<=65535:
+            raise ValueError('Solo se admite PostgreSQL local o DNS interno postgres y puerto válido')
         # No aceptar por configuración otro archivo de credenciales del proyecto.
         path=self.password_file.resolve()
         if path.name!='pg_trainer_password' or self.password_file.is_symlink() or not path.is_file() or path.stat().st_mode & 0o077:
