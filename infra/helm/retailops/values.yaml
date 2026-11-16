@@ -1,0 +1,36 @@
+# Configurar endpoints alcanzables desde pods; loopback del host no es válido.
+images:
+  web: {repository: retailops-web, tag: "REQUIRED"}
+  api: {repository: retailops-api, tag: "REQUIRED"}
+  ml: {repository: retailops-ml-service, tag: "REQUIRED"}
+imagePullPolicy: IfNotPresent
+imagePullSecrets: []
+external:
+  postgresHost: ""
+  postgresPort: "5432"
+  postgresDatabase: retailops
+  mlflowUrl: ""
+  minioUrl: ""
+  airflowUrl: ""
+secrets:
+  api: retailops-api
+  trainer: retailops-trainer
+modelVersion: "1"
+candidateDemo: false
+cache:
+  # PVC precreado; el chart y rollback nunca administran su ciclo de vida.
+  existingClaim: ""
+resources:
+  web:
+    requests: {cpu: 50m, memory: 32Mi}
+    limits: {cpu: "1", memory: 128Mi}
+  api:
+    requests: {cpu: 250m, memory: 256Mi}
+    limits: {cpu: "2", memory: 768Mi}
+  ml:
+    requests: {cpu: 250m, memory: 512Mi}
+    limits: {cpu: "2", memory: 1Gi}
+# Marca opcional para ensayo explícito de rollout del frontend.
+rolloutMarker: ""
+# Alias opcionales para dependencias Compose con nombres internos validados.
+hostAliases: []

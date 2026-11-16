@@ -1,0 +1,15 @@
+# Revisar IP/rutas antes de instalar. containerd propio, Docker permanece intacto.
+write-kubeconfig-mode: "0600"
+# API de Kubernetes: requiere revisar filtrado del host antes de arrancar.
+# Los workloads siguen sin Ingress/NodePort y se usan por port-forward.
+bind-address: "192.168.0.121"
+advertise-address: "192.168.0.121"
+node-ip: "192.168.0.121"
+# Sin node-external-ip: omitir la opción en este laboratorio local.
+flannel-iface: enp6s0
+cluster-cidr: "10.42.0.0/16"
+service-cidr: "10.43.0.0/16"
+disable:
+  - traefik
+  - servicelb
+secrets-encryption: true

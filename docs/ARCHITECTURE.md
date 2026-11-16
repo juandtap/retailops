@@ -83,3 +83,11 @@ Airflow 3.3.2/LocalExecutor en Compose: API/UI, scheduler y DAG processor, Postg
 ## F3 integrada
 
 [Operación y contratos HTTP](APPLICATION.md). nginx sirve React y envía `/api` a Spring; Java valida ventanas y consulta training con rol API, delegando inferencia a Python. Solo FastAPI descarga el modelo v1 mediante MLflow y consulta GOLD autorizado con trainer. Airflow entrega resúmenes mediante una identidad viewer separada; no hay mutaciones desde la aplicación. La caché de inferencia usa volumen independiente, sin SOURCE ni secretos administrativos montados. Los servicios app añaden límites de 1 GiB + 768 MiB + 128 MiB a la infraestructura existente.
+
+## F4 — Despliegue y rollback local verificados
+
+GitHub Actions verifica/construye sin datos reales; publicación GHCR manual separada, sin despliegue automático. Workflows validados localmente, sin ejecución/publicación remota. K3s v1.37.2+k3s1 Ready con containerd propio; imágenes existentes importadas una vez por el usuario y tres Deployments app reales disponibles durante el ensayo.
+
+Helm conserva web → Spring → FastAPI con ClusterIP, ServiceAccounts sin token, NetworkPolicies y entrada por port-forward loopback. Namespace/PVC externos a la release y Secrets de mínimo acceso. PostgreSQL/MinIO/MLflow/Airflow API siguen en Compose mediante puente TCP CNI→loopback, probado con SQL/metadatos reales. No se comparten/copían volúmenes ni ejecutan DAGs. HostAliases postgres/mlflow conservan validaciones de nombres/Host HTTP; trainer usa archivo regular 0600 copiado desde Secret proyectado a emptyDir en memoria. El preflight respeta WaitForFirstConsumer.
+
+Tres smokes completos y revisiones Helm 1→2→3 (rollback a 1) verificados; misma imagen, ensayo de configuración sin cambio de binarios. Histórico/registro/métricas/cutoff/v1 y 19 versiones de objetos MLflow conservados según snapshots. Cierre operativo: workloads app a cero, dependencias/puente/forwards detenidos, PVC Bound y release/Secrets conservados. K3s sigue activo y disabled como al inicio; sin alta disponibilidad, seguridad multiusuario o nueva observabilidad. [Operación, evidencia, límites y reactivación](DEPLOYMENT.md).

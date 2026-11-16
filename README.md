@@ -2,21 +2,21 @@
 
 Plataforma full-stack local de análisis y predicción de ventas diarias por tienda y familia a siete días. Demuestra ingeniería de software y datos, ML, MLOps, DevOps y SRE mediante una reproducción histórica de Corporación Favorita. Apoya planificación comercial y estimación de demanda; no optimiza inventario real.
 
-**Estado:** Foundation y F1-01/F1-02/F1-03 completadas; EDA F1-04A incorporado. Frontend TailAdmin real, API Spring Boot y servicio FastAPI con salud básica. Bootstrap 2013–2014 cargado y publicado de forma recuperable en PostgreSQL/MinIO, corte 2014-12-31. Sin GOLD, modelos, autenticación ni predicciones todavía. Ver [progreso](docs/PROGRESS.md) y [roadmap](docs/ROADMAP.md).
+**Estado:** F0/F1/F2/F3 completadas en sus alcances registrados; aplicación React → Spring → FastAPI verificada con datos reales y candidato MLflow v1, sin aprobación de producción. Corte 2014-12-31; cero meses nuevos liberados. F4 incorpora CI validada localmente y despliegue K3s/Helm real con smoke y ensayo de actualización/rollback aprobados. Laboratorio detenido conservando recursos; K3s sigue activo con autoarranque deshabilitado. Sin autenticación comercial ni observabilidad. Ver [progreso](docs/PROGRESS.md), [roadmap](docs/ROADMAP.md) y [despliegue](docs/DEPLOYMENT.md).
 
 ## Stack y arquitectura
 
 | Componente | Tecnología | Responsabilidad |
 | --- | --- | --- |
 | `apps/web` | React, TypeScript, TailAdmin gratuito, Tailwind CSS | Interfaz responsive |
-| `apps/api` | Java 21, Spring Boot 4.1.2, Maven Wrapper | Plano de control y API; Spring Security/Flyway posteriores |
-| `apps/ml-service` | Python 3.12, FastAPI, uv | Inferencia futura; salud del proceso actual |
-| Ingeniería de datos (prevista) | Airflow, PostgreSQL, MinIO, Parquet | SOURCE → RAW → BRONZE → SILVER → GOLD |
-| MLOps (previsto) | MLflow | Experimentos, registro y versiones de modelos |
-| Infraestructura (prevista) | Docker Compose → K3s de un nodo, Helm | Ejecución y despliegues locales |
-| Operación (prevista) | GitHub Actions, Prometheus, Grafana, Loki | CI, métricas y logs |
+| `apps/api` | Java 21, Spring Boot 4.1.2, Maven Wrapper | Plano de control y API integrada; Flyway en perfil de mantenimiento |
+| `apps/ml-service` | Python 3.12, FastAPI, uv | Inferencia explícita del candidato v1 y metadatos |
+| Ingeniería de datos | Airflow, PostgreSQL, MinIO, Parquet | SOURCE → RAW → BRONZE → SILVER → GOLD |
+| MLOps | MLflow | Experimentos, registro y versiones de modelos |
+| Infraestructura | Docker Compose → K3s de un nodo, Helm | Ejecución y despliegues locales |
+| Operación | GitHub Actions; Prometheus/Grafana/Loki pendientes | CI declarada; observabilidad fuera de F4 |
 
-El navegador se comunicará con Spring Boot; Spring Boot solicitará trabajos a Airflow e inferencia a FastAPI. La Fase 0 solo configura el proxy de desarrollo `/api` hacia Spring; no implementa esas integraciones de negocio. Más detalle en [arquitectura](docs/ARCHITECTURE.md) y [decisiones](docs/DECISIONS.md).
+El navegador solo se comunica con Spring Boot, que consulta histórico/metadatos, delega inferencia a FastAPI y consulta Airflow como viewer. La aplicación no ejecuta ingestas, entrenamientos ni promociones. Más detalle en [aplicación](docs/APPLICATION.md), [arquitectura](docs/ARCHITECTURE.md) y [decisiones](docs/DECISIONS.md).
 
 ## Requisitos e instalación
 
@@ -161,3 +161,5 @@ F1-04B requiere autorización posterior.
 GOLD point-in-time F1-04B: [contrato, ejecución y resultados](docs/FEATURE_ENGINEERING.md), con siete horizontes y etiquetas separadas al corte 2014-12-31. No hay modelos entrenados.
 
 Aplicación integrada F3: [inicio, endpoints y smoke real](docs/APPLICATION.md).
+
+CI y despliegue F4: [DEPLOYMENT.md](docs/DEPLOYMENT.md). Workflows/imágenes validados localmente; K3s/Helm y ensayo real de rollout/rollback aprobados. Actions remota y publicación no ejecutadas. Compose conserva infraestructura y datos; sin publicación automática ni observabilidad.

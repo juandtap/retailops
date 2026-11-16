@@ -1,5 +1,6 @@
 # Base local reproducible construida con el lock uv de apps/ml-service.
-FROM retailops-mlflow:local-v1
+ARG MLFLOW_BASE=retailops-mlflow:local-v1
+FROM ${MLFLOW_BASE}
 WORKDIR /opt/retailops/apps/ml-service
 COPY apps/ml-service/app ./app
 COPY notebooks/retailops_eda /opt/retailops/notebooks/retailops_eda

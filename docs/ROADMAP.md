@@ -1,6 +1,20 @@
 # Roadmap de implementación
 
-F0/F1/F2 completadas en sus alcances registrados. F2 commit local 8f753a3; F3 integración local React/Spring/FastAPI implementada y verificada, sin commit. No hay publicación mensual, nuevo entrenamiento ni promoción. Detenerse antes de otra fase, sin push/pull. Completar una tarea no autoriza la siguiente.
+F0/F1/F2/F3 completadas; último commit F3 7d2bcd0 en main. Nueva solicitud autoriza **F4 CI/K3s/Helm** por delante del bloque DevOps original. Cambios F4 sin commit, sin publicación/push/pull. No autoriza observabilidad ni cambios de datos/modelos.
+
+## F4 autorizada — CI/CD, K3s y Helm
+
+| Hecha | ID | Alcance | Estado y evidencia |
+| --- | --- | --- | --- |
+| [x] | F4-DEV01 | Verificar Git/host y fijar estrategia externa de datos | main limpio inicial, commit F3 confirmado; host/red/recursos inspeccionados |
+| [x] | F4-DEV02 | CI y publicación manual separada | actionlint válido; builds locales, 11 pytest y 9 JUnit; ejecución GitHub/publicación no invocadas |
+| [x] | F4-DEV03 | Imágenes versionadas y chart | Seis imágenes nuevas; Helm lint/render y 15 recursos Kubernetes válidos |
+| [x] | F4-DEV04 | Operación reproducible y documentación | DEPLOYMENT.md; scripts build/upgrade/smoke/rollout/rehearse/rollback; Secrets/PVC externos |
+| [x] | F4-DEV05 | Instalar K3s y verificar despliegue/actualización/rollback | Ready y tres Deployments disponibles; Helm 1→2→3 rollback a 1, tres smokes completos y datos/v1 conservados; cierre local verificado |
+
+F4 cerrada en alcance local autorizado: contexto privado, imágenes importadas, SQL/modelo/19 versiones de objetos y cuatro volúmenes verificados antes/después. CI local validada; ejecución GitHub/GHCR no invocadas. Cierre: app a cero, PVC/release conservados, dependencias/puente/forwards detenidos; K3s activo y disabled. Evidencia y límites en DEPLOYMENT/PROGRESS.
+
+Próxima tarea exacta: revisión de F4 y detenerse antes de F5. Reactivación solo si el usuario la solicita, reutilizando recursos existentes según DEPLOYMENT.md. **No reinstalar ni repetir prepare-host.py/install.sh, importación o reglas UFW.** Sin commits/push/pull.
 
 ## Fase 0 — Foundation
 
@@ -52,9 +66,9 @@ El bloque original se conserva como referencia comercial; F3 autoriza posteriorm
 | [x] | F3-APP01 | Spring: estado, catálogos, ventas, modelo, predicción y Airflow | Datos reales del bootstrap; validación temporal y viewer | Completada |
 | [x] | F3-APP02 | React/TailAdmin: cinco pantallas y gráficos | APIs reales, estados de carga/error/vacío; candidato explícito | Completada |
 | [x] | F3-APP03 | Compose integrado y smoke real | Nueve servicios; inferencia siete días y fallo ML controlado | Completada |
-| [x] | F3-APP04 | Documentación y cierre conservador | APPLICATION.md y evidencia privada; cambios sin commit | Completada |
+| [x] | F3-APP04 | Documentación y cierre conservador | APPLICATION.md y evidencia privada; commit posterior 7d2bcd0 | Completada |
 
-F2 commit local `8f753a3`; F3 sin commit. No se autoriza la siguiente fase. Autenticación y roles comerciales del bloque original siguen pendientes. No se liberaron lotes ni entrenaron/promovieron modelos.
+F2 commit local `8f753a3`; F3 commit local 7d2bcd0. La nueva solicitud autoriza únicamente F4 CI/K3s/Helm. Autenticación y roles comerciales del bloque original siguen pendientes. No se liberaron lotes ni entrenaron/promovieron modelos.
 
 ## MVP full-stack — pendiente (Fase 2 del roadmap original)
 

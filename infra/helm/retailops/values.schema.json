@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "images",
+    "external",
+    "secrets",
+    "cache",
+    "modelVersion"
+  ],
+  "properties": {
+    "images": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "web",
+        "api",
+        "ml"
+      ],
+      "properties": {
+        "web": {
+          "type": "object",
+          "required": [
+            "repository",
+            "tag"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string",
+              "pattern": "^sha-[0-9a-f]{40}$"
+            }
+          }
+        },
+        "api": {
+          "type": "object",
+          "required": [
+            "repository",
+            "tag"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string",
+              "pattern": "^sha-[0-9a-f]{40}$"
+            }
+          }
+        },
+        "ml": {
+          "type": "object",
+          "required": [
+            "repository",
+            "tag"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string",
+              "pattern": "^sha-[0-9a-f]{40}$"
+            }
+          }
+        }
+      }
+    },
+    "external": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "postgresHost",
+        "postgresPort",
+        "postgresDatabase",
+        "mlflowUrl",
+        "minioUrl",
+        "airflowUrl"
+      ],
+      "properties": {
+        "postgresHost": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9.-]+$"
+        },
+        "postgresPort": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "postgresDatabase": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "mlflowUrl": {
+          "type": "string",
+          "pattern": "^https?://[A-Za-z0-9.-]+:[0-9]+$"
+        },
+        "minioUrl": {
+          "type": "string",
+          "pattern": "^https?://[A-Za-z0-9.-]+:[0-9]+$"
+        },
+        "airflowUrl": {
+          "type": "string",
+          "pattern": "^https?://[A-Za-z0-9.-]+:[0-9]+$"
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "api",
+        "trainer"
+      ],
+      "properties": {
+        "api": {
+          "const": "retailops-api"
+        },
+        "trainer": {
+          "const": "retailops-trainer"
+        }
+      }
+    },
+    "cache": {
+      "type": "object",
+      "required": [
+        "existingClaim"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "existingClaim": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "modelVersion": {
+      "const": "1"
+    },
+    "candidateDemo": {
+      "type": "boolean"
+    },
+    "imagePullPolicy": {
+      "enum": [
+        "IfNotPresent",
+        "Never",
+        "Always"
+      ]
+    }
+  }
+}

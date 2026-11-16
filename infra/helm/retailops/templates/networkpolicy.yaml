@@ -1,0 +1,21 @@
+# Entrada solo dentro de la cadena web→api→ML. Web se usa vía port-forward.
+{{- range $name := list "web" "api" "ml" }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $.Release.Name }}-{{ $name }}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/instance: {{ $.Release.Name }}, app.kubernetes.io/component: {{ $name }}}
+  policyTypes: [Ingress]
+  {{- if eq $name "web" }}
+  ingress: []
+  {{- else }}
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {app.kubernetes.io/instance: {{ $.Release.Name }}, app.kubernetes.io/component: {{ ternary "web" "api" (eq $name "api") }}}
+      ports: [{protocol: TCP, port: {{ ternary 8080 8000 (eq $name "api") }}}]
+  {{- end }}
+{{- end }}

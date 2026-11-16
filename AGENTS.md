@@ -16,7 +16,7 @@ Plataforma local de análisis y predicción minorista a siete días por tienda y
 - No introducir tecnologías importantes ni sustituir el stack sin aprobación.
 
 ## Restricciones
-- F2 completada; F3 autoriza la aplicación integrada local React/Spring/FastAPI con consultas e inferencia candidata explícita, sin liberar meses, entrenar, registrar o promover modelos. No avanzar a CI, K3s, Helm ni observabilidad.
+- F2/F3 completadas; F3 commit local 7d2bcd0. F4 autoriza CI GitHub Actions y preparación K3s/Helm, sin liberar meses, entrenar, registrar o promover modelos. No avanzar a observabilidad. Instalación y arranque K3s autorizados por el usuario el 2026-11-16; seis excepciones internas UFW de FIREWALL_PROPOSAL.md autorizadas condicionalmente y revisadas; otros cambios de firewall/rutas globales requieren autorización adicional; no ejecutar publicación GHCR durante F4.
 - No inicializar Git, crear repositorios remotos ni publicar/subir archivos sin autorización.
 - No alterar ni descargar nuevamente `data/source/favorita/*.csv`; nunca versionar datasets, secretos o `.env` reales.
 - No instalar servicios de infraestructura en el SO ni modificar Python del sistema.
@@ -47,4 +47,8 @@ Git en main, commit inicial cf195fcd0358f7284c113dcca6d776aa99d7537e creado con 
 
 Para F2 leer docs/AIRFLOW.md. Autorización mensual con identidad operadora fuera de Airflow, extractor fuera del scheduler, workspace seleccionado RO. V4 y vistas v2 preservan v1; no editar migraciones aplicadas ni recalcular bootstrap por mes. Solo pruebas esenciales de orquestación y DAG seguro; detener servicios inicialmente parados al cerrar, sin eliminar volúmenes.
 
-F2 commit local autorizado 8f753a3. F3 queda sin commit para revisión; consultar docs/APPLICATION.md. Frontend solo accede a Spring; acceso Airflow viewer, SQL retailops_api/trainer en lectura. La demo v1 requiere consentimiento y nunca implica aprobación. Detener los servicios iniciados al cerrar, conservando volúmenes.
+F2 commit local autorizado 8f753a3. F3 commit local 7d2bcd0; F4 queda sin commit para revisión; consultar docs/APPLICATION.md. Frontend solo accede a Spring; acceso Airflow viewer, SQL retailops_api/trainer en lectura. La demo v1 requiere consentimiento y nunca implica aprobación. Detener los servicios iniciados al cerrar, conservando volúmenes.
+
+Para F4 leer docs/DEPLOYMENT.md. Compose conserva los datos; Kubernetes app conecta dependencias externas explícitas, sin migrar/copiar volúmenes. Herramientas solo en .local/f4 con tools.lock.json, chart sin Secrets reales, namespace/PVC externos. Contexto K3s explícito; acceso web solo port-forward loopback. No ejecutar instalador del host sin autorización específica. No declarar despliegue/rollout/rollback verificados sin clúster real. No publicar imágenes, crear commits, push/pull ni cambiar remotos. Detener solo servicios iniciados para las pruebas, conservando persistencia.
+
+F4 verificada en el alcance local autorizado: contexto default y nodo Ready, imágenes existentes importadas una vez por el usuario, Helm 1→2→3 (rollback a 1), tres Deployments disponibles y tres smokes completos aprobados. Histórico/registro v1/19 versiones de objetos MLflow y cuatro volúmenes sin cambios según evidencia .local/f4. Cierre: app a cero réplicas, PVC Bound conservado, cuatro dependencias y puente/forwards detenidos; K3s sigue activo y disabled como al inicio. No repetir instalación, prepare-host.py, importación o reglas UFW. DEPLOYMENT.md describe reactivación y límites; CI GitHub no ejecutada/publicación no invocada. Cambios sin commit para revisión; detenerse antes de F5.

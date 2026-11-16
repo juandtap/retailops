@@ -1,0 +1,31 @@
+{{- if or (lt (int .Values.external.postgresPort) 1) (gt (int .Values.external.postgresPort) 65535) }}
+{{- fail "Puerto PostgreSQL fuera de rango" }}
+{{- end }}
+{{- range $url := list .Values.external.mlflowUrl .Values.external.minioUrl .Values.external.airflowUrl }}
+{{- if regexMatch "^https?://(localhost|127[.]|0[.]0[.]0[.]0)" $url }}
+{{- fail "Dependencias HTTP requieren un endpoint alcanzable desde pods" }}
+{{- end }}
+{{- end }}
+{{- if or (eq .Values.external.postgresHost "localhost") (hasPrefix "127." .Values.external.postgresHost) (eq .Values.external.postgresHost "0.0.0.0") }}
+{{- fail "PostgreSQL debe ser alcanzable desde pods, sin loopback" }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  APP_DB_URL: {{ printf "jdbc:postgresql://%s:%s/%s?connectTimeout=3&socketTimeout=10" .Values.external.postgresHost .Values.external.postgresPort .Values.external.postgresDatabase | quote }}
+  APP_SECRETS_DIR: /run/secrets
+  SPRING_PROFILES_ACTIVE: integrated
+  API_HOST: "0.0.0.0"
+  API_PORT: "8080"
+  ML_SERVICE_URL: http://ml-service:8000
+  AIRFLOW_API_URL: {{ .Values.external.airflowUrl | quote }}
+  MINIO_API_URL: {{ .Values.external.minioUrl | quote }}
+  MLFLOW_TRACKING_URI: {{ .Values.external.mlflowUrl | quote }}
+  CANDIDATE_DEMO_ENABLED: {{ .Values.candidateDemo | quote }}
+  ML_MODEL_VERSION: {{ .Values.modelVersion | quote }}
+  MLFLOW_ALLOW_MODEL_CODE_EXECUTION: "true"
+  EDA_PG_HOST: {{ .Values.external.postgresHost | quote }}
+  EDA_PG_PORT: {{ .Values.external.postgresPort | quote }}
+  EDA_PG_DATABASE: {{ .Values.external.postgresDatabase | quote }}

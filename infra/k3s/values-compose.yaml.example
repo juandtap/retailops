@@ -1,0 +1,20 @@
+# Copiar a .local/f4/values.yaml; actualizar imágenes y revisar endpoints.
+# Dependencias existentes arrancadas mediante Compose + compose_bridge.py.
+images:
+  web: {repository: retailops-web, tag: "sha-REEMPLAZAR"}
+  api: {repository: retailops-api, tag: "sha-REEMPLAZAR"}
+  ml: {repository: retailops-ml-service, tag: "sha-REEMPLAZAR"}
+external:
+  postgresHost: postgres
+  postgresPort: "15432"
+  postgresDatabase: retailops
+  mlflowUrl: http://mlflow:15000
+  minioUrl: http://10.42.0.1:19000
+  airflowUrl: http://10.42.0.1:18081
+cache:
+  existingClaim: retailops-inference-cache
+candidateDemo: false
+# Config.validate admite postgres; MLflow acepta Host mlflow:*, no la IP CNI.
+hostAliases:
+  - ip: "10.42.0.1"
+    hostnames: [postgres, mlflow]

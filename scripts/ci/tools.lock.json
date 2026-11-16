@@ -1,0 +1,44 @@
+{
+  "helm": {
+    "version": "3.17.3",
+    "url": "https://get.helm.sh/helm-v3.17.3-linux-amd64.tar.gz",
+    "sha256": "ee88b3c851ae6466a3de507f7be73fe94d54cbf2987cbaa3d1a3832ea331f2cd",
+    "member": "linux-amd64/helm"
+  },
+  "actionlint": {
+    "version": "1.7.7",
+    "url": "https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_linux_amd64.tar.gz",
+    "sha256": "023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757",
+    "member": "actionlint"
+  },
+  "kubeconform": {
+    "version": "0.8.0",
+    "url": "https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz",
+    "sha256": "9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883",
+    "member": "kubeconform"
+  },
+  "hadolint": {
+    "version": "2.14.0",
+    "url": "https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-linux-x86_64",
+    "sha256": "6bf226944684f56c84dd014e8b979d27425c0148f61b3bd99bcc6f39e9dc5a47",
+    "member": null
+  },
+  "compose": {
+    "version": "2.39.4",
+    "url": "https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64",
+    "sha256": "7af95166a730b87e172d4fc9aefea8725d3c6c7327d59149267b452114ddb7d4",
+    "member": null
+  },
+  "kubectl": {
+    "version": "1.37.2",
+    "url": "https://dl.k8s.io/release/v1.37.2/bin/linux/amd64/kubectl",
+    "sha256": "c04487523e7aa7d1493f7808174c899db93d7a9cf57531420cd76b9bd415f8f4",
+    "member": null
+  },
+  "k3s-install": {
+    "version": "v1.37.2+k3s1",
+    "url": "https://raw.githubusercontent.com/k3s-io/k3s/v1.37.2%2Bk3s1/install.sh",
+    "sha256": "ed01f89fd977bf20ac1516bbebf8370bf3ddbaa55dac8aba610956a4c78cc00b",
+    "member": null
+  }
+}

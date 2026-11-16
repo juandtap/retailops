@@ -1,0 +1,11 @@
+# Crear antes de Helm. Permanece tras upgrade/rollback/uninstall del chart.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: retailops-inference-cache
+  namespace: retailops
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests: {storage: 2Gi}

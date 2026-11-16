@@ -118,3 +118,33 @@ Entrenamiento independiente sin promoción automática. Las ejecuciones lógicas
 ## F3 — Aplicación local integrada y candidato explícito
 
 Se autoriza adelantar la integración de negocio de lectura respecto al roadmap comercial original. Spring es el único backend del navegador; la inferencia permanece en FastAPI. Se conservan v1, corte 2014-12-31 y métricas del registro; no existe modelo aprobado. La demo local requiere habilitación del servidor y consentimiento por petición. Airflow usa credencial viewer independiente y solo cuatro DAGs permitidos, sin devolver conf/logs/tokens ni habilitar triggers. Catálogos derivan del histórico training autorizado porque las dimensiones auxiliares restringidas no se publicaron. No se amplían permisos para resolver esa ausencia. No se añaden migraciones. Autenticación comercial sigue pendiente; despliegue restringido a loopback, no producción multiusuario.
+
+## ADR-025 — F4 CI y aplicación Kubernetes con dependencias Compose
+
+Estado actual: implementado y verificado localmente con K3s/Helm, smoke y actualización/rollback reales; Actions remota/publicación no ejecutadas. Los apartados posteriores conservan el historial de preparación. F4 de la nueva solicitud anticipa el bloque DevOps del roadmap original, sin autorizar observabilidad ni cambiar ciclo de datos/modelos.
+
+GitHub Actions verifica sin secretos/datos del desarrollador, con acciones por SHA, locks y herramientas por checksum; construir no publica. GHCR queda separado por workflow manual/main/propietario y environment cuya protección configura el usuario. No hay deploy automático ni kubeconfig en runners.
+
+Chart de aplicación pequeño conserva contratos e imágenes existentes, ClusterIP/port-forward, ServiceAccounts sin permisos, secretos externos y probes. Namespace/PVC se crean fuera de la release: rollback de software conserva caché y nunca revierte base de datos. ML no usa surge para evitar concurrencia sobre la caché persistente; se acepta una interrupción local durante update. Modelo v1 continúa candidato explícito e independiente.
+
+PostgreSQL/MinIO/MLflow/Airflow permanecen operados por Compose, conectados desde pods mediante endpoints explícitos y puente CNI local optativo. Se descarta migrar datos/volúmenes automáticamente o duplicar toda la infraestructura en Helm. Coste: dependencia del host/Compose y puente pendiente de verificación; no es instalación autónoma ni HA. K3s v1.37.2+k3s1 fijado a la [release oficial](https://github.com/k3s-io/k3s/releases/tag/v1.37.2%2Bk3s1), con containerd propio, no reemplaza Docker y requiere autorización específica para instalar servicio/red del host. Instrucciones/evidencia/límites en [DEPLOYMENT.md](DEPLOYMENT.md).
+
+### Autorización controlada del host y firewall
+
+El usuario autorizó instalación/arranque K3s tras el cierre declarativo de F4, con revisión previa y aprobación separada de firewall/rutas globales. El preflight encontró UFW activo con DROP de entrada/reenvío y reglas efectivas inaccesibles sin autenticación sudo. No se instala/arranca para descubrir conflictos mediante cambios no aprobados. Se prepara propuesta interna acotada y recopilación privilegiada de solo lectura; no se deshabilita UFW ni se elude sudo. La autorización de instalación persiste, pendiente resolver firewall y acceso administrativo. Sin cambios de arquitectura ni alcance F5.
+
+El informe efectivo aportado posteriormente confirma DROP y cadenas UFW de usuario vacías, sin excepciones equivalentes para los seis flujos. La autorización condicional del usuario queda validada respecto al informe; cada ejecución administrativa debe revalidar ausencia de deriva. prepare-host.py prepara esa etapa, registra adiciones/reversión y comprueba conservación de reglas/políticas/conectividad antes de continuar K3s. No cambia el alcance aprobado ni proporciona autenticación sudo al asistente. Sin ejecución root todavía.
+
+### Recuperación del arranque parcial
+
+K3s instalado y reglas aplicadas por el usuario; la plantilla inicial con node-external-ip vacío impidió arrancar. Se omite el parámetro en este laboratorio y se añade rechazo previo en instalador/preparador, con regresión de configuración/CLI. La recuperación usa edición puntual con backup y arranque de la instalación existente; nunca repite bootstrap, reglas ni reinstalación. Un servicio active no sustituye comprobar nodo Ready. Operación siguiente condicionada a confirmación del usuario, conservando persistencia.
+
+### Continuación desde Ready y contratos de imágenes
+
+Nodo Ready confirmado por usuario; se conservan imágenes existentes. Para no modificar validación trainer ni allowed-hosts MLflow, el chart usa aliases internos postgres/mlflow hacia puente CNI. Trainer exige archivo regular 0600: initContainer de la misma imagen realiza copia privada a emptyDir en memoria sin entregar secretos administrativos. Preflight respeta WaitForFirstConsumer de almacenamiento local. Verificaciones estáticas y contrato ML pasan; ejecución real pendiente de kubeconfig privado/importación que requieren sudo local.
+
+### Cierre F4 verificado y operación temporal
+
+Kubeconfig privado/contexto default, nodo Ready e imágenes importadas verificados. Helm desplegó tres workloads con PVC Bound; tres smokes completos y revisión 1→2→3 con rollback a 1 pasan. Se conserva SHA de imágenes: ensayo de configuración, sin afirmar rollback de binarios o modelos. El helper controla un forward nuevo por smoke, evitando conectar al pod sustituido.
+
+Se conserva infraestructura Compose y puente local ya probado; API Airflow viewer suficiente para F4, sin arrancar scheduler/processor ni ejecutar DAGs. Se comprueban invariantes SQL/registro/objetos/volúmenes antes/después. Al cerrar se escalan solo workloads app a cero y se detienen dependencias/puente/forwards arrancados; K3s previamente activo permanece igual, con instalación/PVC/release/Secrets intactos. Esto conserva evidencia y permite reactivar sin reinstalar/importar/modificar UFW. Recursos y límites reales en DEPLOYMENT/PROGRESS; no se autoriza F5 ni publicación remota.

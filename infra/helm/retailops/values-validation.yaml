@@ -1,0 +1,12 @@
+# Solo renderizado/CI; no certifica infraestructura ni histórico.
+images:
+  web: {tag: "sha-0000000000000000000000000000000000000000"}
+  api: {tag: "sha-0000000000000000000000000000000000000000"}
+  ml: {tag: "sha-0000000000000000000000000000000000000000"}
+external:
+  postgresHost: postgres.validation.invalid
+  mlflowUrl: http://mlflow.validation.invalid:5000
+  minioUrl: http://minio.validation.invalid:9000
+  airflowUrl: http://airflow.validation.invalid:8080
+cache:
+  existingClaim: retailops-inference-cache
