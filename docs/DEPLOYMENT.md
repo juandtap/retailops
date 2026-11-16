@@ -1,6 +1,6 @@
 # Despliegue local — F4
 
-**F4 verificada en el alcance local autorizado:** K3s Ready, tres Deployments disponibles, smoke integrado y actualización/rollback Helm reales. CI validada localmente; Actions no ejecutado en GitHub y GHCR no publicado. Sin F5.
+**F4 verificada en el alcance local autorizado:** K3s Ready, tres Deployments disponibles, smoke integrado y actualización/rollback Helm reales. CI validada localmente; primer intento GitHub falló en setup-java. Selector corregido a Temurin 21, pendiente reejecución; GHCR no publicado. Sin F5.
 
 Cierre del ensayo 2026-11-16, America/Guayaquil: workloads app escalados a cero, cuatro dependencias Compose detenidas, puente y forwards cerrados. K3s permanece activo y disabled para autoarranque, igual que al inicio de esta ejecución. Namespace, Secrets, release, PVC, caché, volúmenes y datos conservados.
 
@@ -49,11 +49,11 @@ Kubeconfig copiado por el usuario con install 0600/propietario usuario; endpoint
 
 ## CI, herramientas e imágenes
 
-`ci.yml`: push main, pull_request, workflow_dispatch y workflow_call. Contents:read, checkout sin credenciales persistidas, cachés npm/Maven/uv, concurrencia por workflow/ref y timeout 60 min. Actions por SHA; Node 26.13.1, Java Temurin 21.0.7+6 y uv 0.13.8/Python 3.12.16 fijados. Ubuntu 24.04 es imagen mantenida del runner, no snapshot de SO inmutable.
+`ci.yml`: push main, pull_request, workflow_dispatch y workflow_call. Contents:read, checkout sin credenciales persistidas, cachés npm/Maven/uv, concurrencia por workflow/ref y timeout 60 min. Actions por SHA; Node 26.13.1, Java Temurin de la línea 21 y uv 0.13.8/Python 3.12.16 fijados. setup-java conserva su SHA y resuelve un parche disponible de Java 21, sin fijar el build exacto. Ubuntu 24.04 es imagen mantenida del runner, no snapshot de SO inmutable.
 
 Verifica Python sin datos reales, Maven verify, React build/lint, Dockerfiles/Compose, AST y DagBag real Airflow, workflows/Helm/Kubernetes y seis builds Docker. No recibe secretos del desarrollador ni infraestructura histórica. Artefacto CI: manifiestos sin secretos, retención siete días. Herramientas en scripts/ci/tools.lock.json con versión/URL/SHA256, descargadas solo a .local/f4/tools.
 
-`publish.yml`: solo workflow_dispatch publish=true, main y propietario, CI previo, environment ghcr-release y packages:write únicamente en publicación. El usuario debe configurar sus protecciones/revisores antes de invocar; el nombre de environment no garantiza aprobación. Falla si no puede demostrar etiqueta libre; no sustituye imágenes existentes. No hay deploy automático ni kubeconfig en Actions. No se invocaron Actions ni publicación GHCR, y no hubo push/pull/remotos modificados.
+`publish.yml`: solo workflow_dispatch publish=true, main y propietario, CI previo, environment ghcr-release y packages:write únicamente en publicación. El usuario debe configurar sus protecciones/revisores antes de invocar; el nombre de environment no garantiza aprobación. Falla si no puede demostrar etiqueta libre; no sustituye imágenes existentes. No hay deploy automático ni kubeconfig en Actions. Durante el ensayo local no se invocaron Actions ni GHCR, y no hubo push/pull/remotos modificados. Después, el usuario informó el primer fallo GitHub en setup-java; la corrección a Java 21 aún requiere reejecución remota.
 
 Imágenes retailops-{web,api,ml-service,mlflow,airflow,minio}. CI etiqueta `sha-<github.sha>`; build local usa huella de contenido mediante source_version.py. Seis imágenes construidas previamente; las tres app desplegadas conservan **sha-abd1044fc28d6be41e7a274183cc675899370aa8**. Base ML enlazada mediante ARG MLFLOW_BASE del mismo SHA, sin sobrescribir local-v1 Compose. Bases por digest, locks npm/uv y MinIO por revisión/checksum; Maven Wrapper/BOM fijados. No se verificó identidad bit a bit de builds ni independencia de repositorios externos.
 

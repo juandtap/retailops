@@ -4,7 +4,13 @@ Fecha: 2026-11-16, America/Guayaquil.
 
 ## Estado actual
 
-F0/F1/F2/F3 completadas en sus alcances registrados. Git limpio al inicio en main, último commit **7d2bcd0** (`feat: integrate RetailOps application and forecasting dashboard`), F3 ya comprometida por el usuario; no se recreó su commit. F4 CI/K3s/Helm autorizada por nueva solicitud, por delante del roadmap original. **F4 verificada y cerrada en el alcance local autorizado:** K3s Ready, imágenes existentes reutilizadas, tres Deployments disponibles y actualización/rollback Helm reales con smoke integrado aprobado en las tres etapas. Histórico/cutoff/v1/objetos y volúmenes conservados. Workloads app a cero y dependencias/puente/forwards detenidos; K3s activo y disabled como al inicio. Actions no ejecutado en GitHub; GHCR no publicado. Cambios F4 sin commit, sin push/pull ni cambios de remotos. No F5.
+F0/F1/F2/F3 completadas en sus alcances registrados. Git limpio al inicio en main, último commit **7d2bcd0** (`feat: integrate RetailOps application and forecasting dashboard`), F3 ya comprometida por el usuario; no se recreó su commit. F4 CI/K3s/Helm autorizada por nueva solicitud, por delante del roadmap original. **F4 verificada y cerrada en el alcance local autorizado:** K3s Ready, imágenes existentes reutilizadas, tres Deployments disponibles y actualización/rollback Helm reales con smoke integrado aprobado en las tres etapas. Histórico/cutoff/v1/objetos y volúmenes conservados. Workloads app a cero y dependencias/puente/forwards detenidos; K3s activo y disabled como al inicio. Primer workflow GitHub reportado por el usuario falló en setup-java; selector corregido a Temurin 21, pendiente reejecución. GHCR no publicado. Cambios F4 sin commit, sin push/pull ni cambios de remotos. No F5.
+
+## Corrección puntual CI — selector Java 21
+
+El usuario informó fallo de actions/setup-java por selector exacto de parche/build no resuelto. `.github/workflows/ci.yml` ahora usa `distribution: temurin` y `java-version: '21'`; la misma referencia en publish.yml se alineó para evitar el mismo fallo. SHA de ambas acciones, cachés, permisos, disparadores y pasos restantes conservados. DEPLOYMENT.md refleja que se fija la línea Java 21, no un build exacto.
+
+Validación local: actionlint en ambos workflows y comprobación de distribución/selector/SHA correctos; git diff --check pasa. No se repitieron builds ni se invocaron workflows/publicación/servicios. Sin commit/push. Próxima tarea exacta: revisión/commit del usuario y reejecución de CI en GitHub para confirmar la resolución del JDK; sin ampliar F4 ni avanzar a F5.
 
 ## Cierre verificado F4 — despliegue y rollback reales
 

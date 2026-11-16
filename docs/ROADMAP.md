@@ -7,14 +7,14 @@ F0/F1/F2/F3 completadas; último commit F3 7d2bcd0 en main. Nueva solicitud auto
 | Hecha | ID | Alcance | Estado y evidencia |
 | --- | --- | --- | --- |
 | [x] | F4-DEV01 | Verificar Git/host y fijar estrategia externa de datos | main limpio inicial, commit F3 confirmado; host/red/recursos inspeccionados |
-| [x] | F4-DEV02 | CI y publicación manual separada | actionlint válido; builds locales, 11 pytest y 9 JUnit; ejecución GitHub/publicación no invocadas |
+| [x] | F4-DEV02 | CI y publicación manual separada | actionlint válido; primer CI GitHub falló en setup-java, selector corregido a Temurin 21 y pendiente reejecución; sin publicación |
 | [x] | F4-DEV03 | Imágenes versionadas y chart | Seis imágenes nuevas; Helm lint/render y 15 recursos Kubernetes válidos |
 | [x] | F4-DEV04 | Operación reproducible y documentación | DEPLOYMENT.md; scripts build/upgrade/smoke/rollout/rehearse/rollback; Secrets/PVC externos |
 | [x] | F4-DEV05 | Instalar K3s y verificar despliegue/actualización/rollback | Ready y tres Deployments disponibles; Helm 1→2→3 rollback a 1, tres smokes completos y datos/v1 conservados; cierre local verificado |
 
-F4 cerrada en alcance local autorizado: contexto privado, imágenes importadas, SQL/modelo/19 versiones de objetos y cuatro volúmenes verificados antes/después. CI local validada; ejecución GitHub/GHCR no invocadas. Cierre: app a cero, PVC/release conservados, dependencias/puente/forwards detenidos; K3s activo y disabled. Evidencia y límites en DEPLOYMENT/PROGRESS.
+F4 cerrada en alcance local autorizado: contexto privado, imágenes importadas, SQL/modelo/19 versiones de objetos y cuatro volúmenes verificados antes/después. CI local validada; primer intento GitHub falló en setup-java y queda pendiente reejecución con Temurin 21. GHCR no invocado. Cierre: app a cero, PVC/release conservados, dependencias/puente/forwards detenidos; K3s activo y disabled. Evidencia y límites en DEPLOYMENT/PROGRESS.
 
-Próxima tarea exacta: revisión de F4 y detenerse antes de F5. Reactivación solo si el usuario la solicita, reutilizando recursos existentes según DEPLOYMENT.md. **No reinstalar ni repetir prepare-host.py/install.sh, importación o reglas UFW.** Sin commits/push/pull.
+Próxima tarea exacta: revisión/commit del usuario y reejecución de CI tras corregir el selector Java; detenerse antes de F5. Reactivación solo si el usuario la solicita, reutilizando recursos existentes según DEPLOYMENT.md. **No reinstalar ni repetir prepare-host.py/install.sh, importación o reglas UFW.** Sin commits/push/pull.
 
 ## Fase 0 — Foundation
 
