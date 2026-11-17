@@ -1,0 +1,148 @@
+{
+  "uid": "retailops-incident-training",
+  "title": "RetailOps · Investigación de entrenamiento",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Disponibilidad réplicas",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up{scope=\"exercise\"}",
+          "legendFormat": "{{component}} {{status}} {{job}} {{alertstate}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "HTTP por componente/estado",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(component,status)(rate(incident_lab_requests_total[2m]))",
+          "legendFormat": "{{component}} {{status}} {{job}} {{alertstate}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "p95 sonda por componente",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95,sum by(component,le)(rate(incident_lab_request_seconds_bucket[2m])))",
+          "legendFormat": "{{component}} {{status}} {{job}} {{alertstate}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "RSS sonda",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "incident_lab_process_resident_memory_bytes",
+          "legendFormat": "{{component}} {{status}} {{job}} {{alertstate}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Reserva acotada",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "incident_lab_memory_reserved_bytes",
+          "legendFormat": "{{component}} {{status}} {{job}} {{alertstate}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Alertas de entrenamiento",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ALERTS{scope=\"exercise\"}",
+          "legendFormat": "{{component}} {{status}} {{job}} {{alertstate}}"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "type": "link",
+      "title": "Logs: filtrar environment=incident-lab",
+      "url": "/d/retailops-logs"
+    }
+  ]
+}

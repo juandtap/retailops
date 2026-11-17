@@ -1,5 +1,7 @@
 # Runbooks operativos F5.3
 
+Nota F5.5-A: [laboratorio de incidentes preparado](INCIDENT_LAB.md), sin despliegue ni incidentes ejecutados. Overlays de observabilidad/logging deshabilitados por defecto; no se aplicaron permisos nuevos. Provisionamiento y ejercicios F5.5-B requieren autorización posterior. Los datos, respaldos y recursos conservados permanecen intactos.
+
 Laboratorio de un nodo, diagnóstico local y recuperación conservadora. F5.4 autoriza después backups y restauración aislada según BACKUP_RECOVERY.md; no autoriza F5.5, ensayos destructivos, borrados originales, UFW, cambios de modelo o aumento de límites conservados. Los enlaces de alerta son rutas del repositorio; el dashboard SRE ofrece enlaces HTTP locales a métricas, logs y Alertmanager. Loki solo contiene eventos HTTP propios de api/ml/web; una búsqueda vacía no descarta fallos.
 
 Antes de diagnosticar, registrar hora UTC, alerta, servicio y si hay cierre planificado. Exportar desde la raíz:

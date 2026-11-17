@@ -1,0 +1,10 @@
+# Solo aplicar en F5.5-B después de autorización; F5.5-A solo renderiza/valida.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: retailops-incident-lab
+  labels:
+    retailops.io/purpose: incident-training
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

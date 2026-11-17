@@ -1,5 +1,7 @@
 # F5.4 — Backup cifrado y restauración aislada
 
+Nota F5.5-A: [laboratorio de incidentes preparado](INCIDENT_LAB.md), sin despliegue ni incidentes ejecutados. Overlays de observabilidad/logging deshabilitados por defecto; no se aplicaron permisos nuevos. Provisionamiento y ejercicios F5.5-B requieren autorización posterior. Los datos, respaldos y recursos conservados permanecen intactos.
+
 Alcance autorizado: PostgreSQL lógico, MinIO frío con versiones originales, configuración/metadatos y comprobación de candidato v1 en aislamiento. Sin F5.5, incidentes destructivos, alteración del cutoff/modelo, reinstalación K3s, UFW, programación recurrente o transferencias externas. F5.3 y su Actions después de push fueron confirmadas correctas por el usuario.
 
 ## Datos protegidos y límites

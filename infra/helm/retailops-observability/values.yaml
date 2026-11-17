@@ -31,3 +31,7 @@ alerting:
   receiverResources:
     requests: {cpu: 10m, memory: 24Mi}
     limits: {cpu: 100m, memory: 64Mi}
+
+# Solo F5.5-B, después de autorización. No modifica el despliegue por defecto.
+incidentLab:
+  enabled: false

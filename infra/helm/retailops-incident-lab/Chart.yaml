@@ -1,0 +1,7 @@
+apiVersion: v2
+name: retailops-incident-lab
+description: Réplicas sin datos y sonda SRE aislada; preparación F5.5-A, ejecución futura autorizada
+type: application
+version: 0.1.0
+appVersion: "f5.5-a"
+kubeVersion: ">=1.30.0-0"

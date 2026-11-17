@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "stage": "F5.5-A",
+  "namespace": "retailops-incident-lab",
+  "scenarios": [
+    {
+      "id": "IL-001",
+      "title": "Disponibilidad Spring Boot",
+      "objective": "Localizar una pérdida de disponibilidad de la réplica Spring",
+      "mode": "scale_spring",
+      "preconditions": [
+        "Autorización explícita F5.5-B vigente y ligada a sesión/cluster/namespace/catálogo",
+        "Preflight ready: backups válidos, fuentes cerradas, réplicas y observabilidad saludables",
+        "Baseline sin otro ejercicio, observabilidad scope=exercise y margen RAM≥4GiB"
+      ],
+      "injection": "Escalar solo deployment/spring a cero en retailops-incident-lab",
+      "expected_evidence": "Target incident-spring DOWN; sonda spring devuelve 503; alerta de ejercicio",
+      "recovery_criterion": "spring 1/1 y cinco probes 200",
+      "rollback": "Restaurar spec.replicas=1 y esperar rollout",
+      "risks_and_limits": "No prueba recuperación de SQL ni API comercial",
+      "max_duration_seconds": 600
+    },
+    {
+      "id": "IL-002",
+      "title": "Errores HTTP",
+      "objective": "Investigar un incremento de 5xx en la puerta de entrenamiento",
+      "mode": "http_5xx",
+      "preconditions": [
+        "Autorización explícita F5.5-B vigente y ligada a sesión/cluster/namespace/catálogo",
+        "Preflight ready: backups válidos, fuentes cerradas, réplicas y observabilidad saludables",
+        "Baseline sin otro ejercicio, observabilidad scope=exercise y margen RAM≥4GiB"
+      ],
+      "injection": "La sonda emite HTTP 503 controlado solo en /spring-health",
+      "expected_evidence": "Contador 5xx y logs JSON de la sonda; alerta scope=exercise",
+      "recovery_criterion": "Cinco probes 200 y sin nuevos 5xx; el ratio histórico decae",
+      "rollback": "Volver estado de sonda a normal",
+      "risks_and_limits": "El fallo se genera en la sonda, no cambia lógica Spring",
+      "max_duration_seconds": 600
+    },
+    {
+      "id": "IL-003",
+      "title": "Latencia HTTP",
+      "objective": "Distinguir latencia de disponibilidad y relacionar histogramas/logs",
+      "mode": "latency",
+      "preconditions": [
+        "Autorización explícita F5.5-B vigente y ligada a sesión/cluster/namespace/catálogo",
+        "Preflight ready: backups válidos, fuentes cerradas, réplicas y observabilidad saludables",
+        "Baseline sin otro ejercicio, observabilidad scope=exercise y margen RAM≥4GiB"
+      ],
+      "injection": "Retraso fijo 1.5s en /spring-health de la sonda",
+      "expected_evidence": "Histograma real de sonda y p95 >1s; disponibilidad 200",
+      "recovery_criterion": "Cinco probes rápidos y ventana de latencia recuperada",
+      "rollback": "Volver estado normal sin tocar límites ni dependencias",
+      "risks_and_limits": "Máximo dos solicitudes simultáneas; no es prueba de carga",
+      "max_duration_seconds": 600
+    },
+    {
+      "id": "IL-004",
+      "title": "Acceso a ML",
+      "objective": "Investigar inaccesibilidad entre dos componentes propios",
+      "mode": "block_ml",
+      "preconditions": [
+        "Autorización explícita F5.5-B vigente y ligada a sesión/cluster/namespace/catálogo",
+        "Preflight ready: backups válidos, fuentes cerradas, réplicas y observabilidad saludables",
+        "Baseline sin otro ejercicio, observabilidad scope=exercise y margen RAM≥4GiB"
+      ],
+      "injection": "Cambiar solo selector de ingreso gateway en NetworkPolicy/ml-ingress",
+      "expected_evidence": "ML Ready y scrape UP, pero sonda ML 503/timeout",
+      "recovery_criterion": "Cinco probes ML 200 y política igual a baseline",
+      "rollback": "Restaurar exactamente la política capturada",
+      "risks_and_limits": "Solo /health del proceso FastAPI, sin modelo ni inferencia",
+      "max_duration_seconds": 600
+    },
+    {
+      "id": "IL-005",
+      "title": "Memoria",
+      "objective": "Observar crecimiento de memoria controlado sin OOM",
+      "mode": "memory",
+      "preconditions": [
+        "Autorización explícita F5.5-B vigente y ligada a sesión/cluster/namespace/catálogo",
+        "Preflight ready: backups válidos, fuentes cerradas, réplicas y observabilidad saludables",
+        "Baseline sin otro ejercicio, observabilidad scope=exercise y margen RAM≥4GiB"
+      ],
+      "injection": "Reservar 48MiB una sola vez en la sonda, límite pod128Mi",
+      "expected_evidence": "RSS propio y gauge de reserva >32MiB; alerta específica",
+      "recovery_criterion": "Reserva=0 y RSS estable; allocator puede retener páginas",
+      "rollback": "Liberar reserva mediante estado normal; si es necesario rollout solo gateway autorizado",
+      "risks_and_limits": "No saturar host, no stress-ng ni cambios MLflow; no prometer bajar RSS inmediatamente",
+      "max_duration_seconds": 600
+    },
+    {
+      "id": "IL-006",
+      "title": "Almacenamiento efímero",
+      "objective": "Investigar fallo de lectura y aplicar reversión segura",
+      "mode": "storage",
+      "preconditions": [
+        "Autorización explícita F5.5-B vigente y ligada a sesión/cluster/namespace/catálogo",
+        "Preflight ready: backups válidos, fuentes cerradas, réplicas y observabilidad saludables",
+        "Baseline sin otro ejercicio, observabilidad scope=exercise y margen RAM≥4GiB"
+      ],
+      "injection": "Retirar temporalmente marcador propio del emptyDir /work",
+      "expected_evidence": "Lectura local falla y sonda storage503; log tipo FileNotFoundError",
+      "recovery_criterion": "Marcador vuelve con mismos bytes y cinco probes200",
+      "rollback": "Reponer marcador retenido; nunca ejecutar restore en origen",
+      "risks_and_limits": "No toca PVC/volúmenes/backup reales ni simula desastre integral",
+      "max_duration_seconds": 600
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # Despliegue local — F4
 
+Nota F5.5-A: [laboratorio de incidentes preparado](INCIDENT_LAB.md), sin despliegue ni incidentes ejecutados. Overlays de observabilidad/logging deshabilitados por defecto; no se aplicaron permisos nuevos. Provisionamiento y ejercicios F5.5-B requieren autorización posterior. Los datos, respaldos y recursos conservados permanecen intactos.
+
 **F4 verificada en el alcance local autorizado:** K3s Ready, tres Deployments disponibles, smoke integrado y actualización/rollback Helm reales. CI #2 GitHub exitosa según usuario después de corregir selector a Temurin 21; GHCR no publicado. Sin F5.
 
 Cierre del ensayo 2026-11-16, America/Guayaquil: workloads app escalados a cero, cuatro dependencias Compose detenidas, puente y forwards cerrados. K3s permanece activo y disabled para autoarranque, igual que al inicio de esta ejecución. Namespace, Secrets, release, PVC, caché, volúmenes y datos conservados.

@@ -1,0 +1,234 @@
+{
+  "rule_files": [
+    "rules.yml"
+  ],
+  "evaluation_interval": "15s",
+  "tests": [
+    {
+      "name": "idle no alarma aunque targets estén apagados",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "incident_lab_watch_enabled",
+          "values": "0x20"
+        },
+        {
+          "series": "up{job=\"incident-spring\"}",
+          "values": "0x20"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "3m",
+          "alertname": "IncidentTrainingUnavailable",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "spring esperado inaccesible",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "incident_lab_watch_enabled",
+          "values": "1x20"
+        },
+        {
+          "series": "up{job=\"incident-spring\"}",
+          "values": "0x20"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "3m",
+          "alertname": "IncidentTrainingUnavailable",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "scope": "exercise",
+                "environment": "incident-lab",
+                "category": "training",
+                "severity": "warning",
+                "job": "incident-spring"
+              },
+              "exp_annotations": {
+                "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+                "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+                "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+                "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reserva sintetica sin asignar memoria real",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "incident_lab_watch_enabled",
+          "values": "1x20"
+        },
+        {
+          "series": "incident_lab_memory_reserved_bytes",
+          "values": "50331648x20"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "3m",
+          "alertname": "IncidentTrainingMemory",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "scope": "exercise",
+                "environment": "incident-lab",
+                "category": "training",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+                "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+                "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+                "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5xx con volumen",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "incident_lab_watch_enabled",
+          "values": "1x20"
+        },
+        {
+          "series": "incident_lab_requests_total{component=\"spring\",status=\"200\"}",
+          "values": "0+4x20"
+        },
+        {
+          "series": "incident_lab_requests_total{component=\"spring\",status=\"503\"}",
+          "values": "0+1x20"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "3m",
+          "alertname": "IncidentTrainingHttp5xx",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "scope": "exercise",
+                "environment": "incident-lab",
+                "category": "training",
+                "severity": "warning",
+                "component": "spring"
+              },
+              "exp_annotations": {
+                "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+                "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+                "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+                "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fallo lectura efimera",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "incident_lab_watch_enabled",
+          "values": "1x20"
+        },
+        {
+          "series": "incident_lab_requests_total{component=\"storage\",status=\"503\"}",
+          "values": "0+1x20"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "3m",
+          "alertname": "IncidentTrainingStorage",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "scope": "exercise",
+                "environment": "incident-lab",
+                "category": "training",
+                "severity": "warning",
+                "component": "storage",
+                "status": "503"
+              },
+              "exp_annotations": {
+                "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+                "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+                "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+                "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "latencia de sonda",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "incident_lab_watch_enabled",
+          "values": "1x20"
+        },
+        {
+          "series": "incident_lab_requests_total{component=\"spring\",status=\"200\"}",
+          "values": "0+4x20"
+        },
+        {
+          "series": "incident_lab_requests_total{component=\"spring\",status=\"503\"}",
+          "values": "0+1x20"
+        },
+        {
+          "series": "incident_lab_request_seconds_bucket{component=\"spring\",le=\"1\"}",
+          "values": "0x20"
+        },
+        {
+          "series": "incident_lab_request_seconds_bucket{component=\"spring\",le=\"2\"}",
+          "values": "0+5x20"
+        },
+        {
+          "series": "incident_lab_request_seconds_bucket{component=\"spring\",le=\"+Inf\"}",
+          "values": "0+5x20"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "3m",
+          "alertname": "IncidentTrainingLatency",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "scope": "exercise",
+                "environment": "incident-lab",
+                "category": "training",
+                "severity": "warning",
+                "component": "spring"
+              },
+              "exp_annotations": {
+                "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+                "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+                "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+                "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

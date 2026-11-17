@@ -1,3 +1,6 @@
+{{- if and .Values.incidentLab.enabled (not .Values.alerting.enabled) }}
+{{- fail "Entrenamiento requiere alerting.enabled=true" }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,10 +8,20 @@ metadata:
 data:
   prometheus.yml: |
 {{ .Files.Get "files/prometheus.yml" | indent 4 }}
+{{- if .Values.incidentLab.enabled }}
+{{ .Files.Get "files/incident-lab/scrape.yml" | indent 4 }}
+{{- end }}
 {{- if .Values.alerting.enabled }}
 {{ .Files.Get "files/alerting/prometheus-extra.yml" | indent 4 }}
+{{- if .Values.incidentLab.enabled }}
+      - /etc/retailops/incident-rules.yml
+{{- end }}
   rules.yml: |
 {{ .Files.Get "files/alerting/rules.yml" | indent 4 }}
+{{- end }}
+{{- if .Values.incidentLab.enabled }}
+  incident-rules.yml: |
+{{ .Files.Get "files/incident-lab/rules.yml" | indent 4 }}
 {{- end }}
   collector.py: |
 {{ .Files.Get "files/collector.py" | indent 4 }}
@@ -38,4 +51,9 @@ data:
 {{- if .Values.alerting.enabled }}
   sre.json: |
 {{ .Files.Get "files/alerting/dashboard.json" | indent 4 }}
+{{- end }}
+
+{{- if .Values.incidentLab.enabled }}
+  incident-training.json: |
+{{ .Files.Get "files/incident-lab/dashboard.json" | indent 4 }}
 {{- end }}

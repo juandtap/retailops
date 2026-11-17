@@ -1,0 +1,14 @@
+  - job_name: incident-spring
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [spring.retailops-incident-lab.svc:8080]
+        labels: {environment: incident-lab, scope: exercise}
+  - job_name: incident-ml
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ml.retailops-incident-lab.svc:8000]
+        labels: {environment: incident-lab, scope: exercise}
+  - job_name: incident-gateway
+    static_configs:
+      - targets: [gateway.retailops-incident-lab.svc:8089]
+        labels: {environment: incident-lab, scope: exercise}

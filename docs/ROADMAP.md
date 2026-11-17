@@ -1,6 +1,20 @@
 # Roadmap de implementación
 
-**F5.4 implementada y validada en dos restauraciones aisladas del plano de datos/artefacto**, con cierre conservador verificado. F5.3 publicada y Actions exitosa según usuario. Sin F5.5, incidentes destructivos, notificaciones/transferencias externas, commit/push/pull/GHCR.
+**F5.5-A preparada y validada, cero incidentes ejecutados.** F5.4/Actions verde confirmadas por usuario. F5.5-B requiere autorización posterior; no despliegue, datos persistentes, commits/push/pull/GHCR ni otra fase.
+
+## F5.5 — Laboratorio de incidentes: A y B separadas
+
+| Hecha | ID | Alcance | Evidencia / límites |
+| --- | --- | --- | --- |
+| [x] | F55A-01 | Inspección y arquitectura aislada | Fuentes intactas/cerradas; namespace/release exclusivo, réplicas sin datos y sonda acotada |
+| [x] | F55A-02 | Catálogo seis escenarios y reversión | Condiciones, mecanismo, evidencia, recuperación/riesgos; ninguno activado |
+| [x] | F55A-03 | CLI/gates/privacidad | Siete comandos, autorización individual B, UID/owner/CAS, replay/idempotencia y estado privado ignorado |
+| [x] | F55A-04 | Observabilidad opcional y validaciones | 12 unitarias mocks/6 fixtures PromQL, 56 recursos válidos, cinco reglas/seis paneles, defaults preservados |
+| [x] | F55A-05 | Documentación y preflight no destructivo | Backup autenticado, nodo/RAM/fuentes correctos; ready=false por namespace no provisionado, cero mutaciones |
+| [ ] | F55B-01 | Autorizar preparación operativa/primer escenario | Pendiente consentimiento posterior; incluye namespace/RBAC nuevo/observadores y autorización individual |
+| [ ] | F55B-02 | Ejecutar, investigar y evaluar | No ejecutado; estado/logs/causa/evidencia solo ignorados por Git |
+
+Próxima tarea exacta: revisión F5.5-A y esperar autorización explícita para F5.5-B. Sin avanzar a otra fase. [Catálogo, operación, evaluación y separación Git](INCIDENT_LAB.md).
 
 ## F5.4 — Backups y restauración aislada
 

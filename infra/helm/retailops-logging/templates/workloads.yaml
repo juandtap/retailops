@@ -12,7 +12,7 @@ metadata:
   name: retailops-{{ $name }}-config
 data:
   config: |
-{{ $.Files.Get (ternary "files/loki.yaml" "files/config.alloy" (eq $name "loki")) | indent 4 }}
+{{ $.Files.Get (ternary "files/loki.yaml" (ternary "files/incident-lab/config.alloy" "files/config.alloy" $.Values.incidentLab.enabled) (eq $name "loki")) | indent 4 }}
 ---
 apiVersion: v1
 kind: Service
@@ -37,7 +37,7 @@ spec:
     metadata:
       labels: {app.kubernetes.io/part-of: retailops-logging, app.kubernetes.io/component: {{ $name }}}
       annotations:
-        checksum/config: {{ $.Files.Get (ternary "files/loki.yaml" "files/config.alloy" (eq $name "loki")) | sha256sum }}
+        checksum/config: {{ $.Files.Get (ternary "files/loki.yaml" (ternary "files/incident-lab/config.alloy" "files/config.alloy" $.Values.incidentLab.enabled) (eq $name "loki")) | sha256sum }}
     spec:
       automountServiceAccountToken: {{ eq $name "alloy" }}
       {{- if eq $name "alloy" }}

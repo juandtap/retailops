@@ -1,0 +1,95 @@
+{
+  "groups": [
+    {
+      "name": "retailops-incident-training",
+      "interval": "15s",
+      "rules": [
+        {
+          "alert": "IncidentTrainingUnavailable",
+          "expr": "up{job=~\"incident-spring|incident-ml|incident-gateway\"} == 0 and on() (max(last_over_time(incident_lab_watch_enabled[5m])) == 1)",
+          "for": "1m",
+          "labels": {
+            "scope": "exercise",
+            "environment": "incident-lab",
+            "category": "training",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+            "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "IncidentTrainingHttp5xx",
+          "expr": "(sum by(component)(rate(incident_lab_requests_total{status=~\"5..\"}[2m])) / sum by(component)(rate(incident_lab_requests_total[2m])) > 0.05) and (sum by(component)(increase(incident_lab_requests_total[2m])) >= 10) and on() (max(last_over_time(incident_lab_watch_enabled[5m])) == 1)",
+          "for": "1m",
+          "labels": {
+            "scope": "exercise",
+            "environment": "incident-lab",
+            "category": "training",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+            "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "IncidentTrainingLatency",
+          "expr": "(histogram_quantile(0.95,sum by(component,le)(rate(incident_lab_request_seconds_bucket[2m]))) > 1) and (sum by(component)(increase(incident_lab_requests_total[2m])) >= 10) and on() (max(last_over_time(incident_lab_watch_enabled[5m])) == 1)",
+          "for": "1m",
+          "labels": {
+            "scope": "exercise",
+            "environment": "incident-lab",
+            "category": "training",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+            "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "IncidentTrainingMemory",
+          "expr": "incident_lab_memory_reserved_bytes > 33554432 and on() (max(last_over_time(incident_lab_watch_enabled[5m])) == 1)",
+          "for": "30s",
+          "labels": {
+            "scope": "exercise",
+            "environment": "incident-lab",
+            "category": "training",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+            "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "IncidentTrainingStorage",
+          "expr": "increase(incident_lab_requests_total{component=\"storage\",status=\"503\"}[2m]) > 3 and on() (max(last_over_time(incident_lab_watch_enabled[5m])) == 1)",
+          "for": "30s",
+          "labels": {
+            "scope": "exercise",
+            "environment": "incident-lab",
+            "category": "training",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "Síntoma observado en entrenamiento aislado; investigar sin acceso a la guía privada",
+            "runbook_url": "docs/INCIDENT_LAB.md#investigacion",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-incident-training",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        }
+      ]
+    }
+  ]
+}

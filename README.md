@@ -2,7 +2,7 @@
 
 Plataforma full-stack local de análisis y predicción de ventas diarias por tienda y familia a siete días. Demuestra ingeniería de software y datos, ML, MLOps, DevOps y SRE mediante una reproducción histórica de Corporación Favorita. Apoya planificación comercial y estimación de demanda; no optimiza inventario real.
 
-**Estado:** F0/F1/F2/F3 completadas en sus alcances registrados; aplicación React → Spring → FastAPI verificada con datos reales y candidato MLflow v1, sin aprobación de producción. Corte 2014-12-31; cero meses nuevos liberados. F4 incorpora CI validada localmente y despliegue K3s/Helm real con smoke y ensayo de actualización/rollback aprobados. Laboratorio detenido conservando recursos; K3s sigue activo con autoarranque deshabilitado. F5.1 añade métricas, Prometheus y Grafana verificados; F5.2 añade Loki/Alloy y logs HTTP correlacionados verificados; F5.3 añade alertas locales y SLO propuestos; sin autenticación comercial ni F5.4. Ver [progreso](docs/PROGRESS.md), [roadmap](docs/ROADMAP.md) y [despliegue](docs/DEPLOYMENT.md).
+**Estado:** F0/F1/F2/F3 completadas en sus alcances registrados; aplicación React → Spring → FastAPI verificada con datos reales y candidato MLflow v1, sin aprobación de producción. Corte 2014-12-31; cero meses nuevos liberados. F4 incorpora CI validada localmente y despliegue K3s/Helm real con smoke y ensayo de actualización/rollback aprobados. Laboratorio detenido conservando recursos; K3s sigue activo con autoarranque deshabilitado. F5.1 añade métricas, Prometheus y Grafana verificados; F5.2 añade Loki/Alloy y logs HTTP correlacionados verificados; F5.3 añade alertas locales y SLO propuestos; F5.4 añade backups cifrados y dos restauraciones aisladas validadas. F5.5-A prepara el [laboratorio de incidentes](docs/INCIDENT_LAB.md), con validación estática y preflight de lectura: ningún incidente ejecutado y F5.5-B pendiente de autorización. Sin autenticación comercial. Ver [progreso](docs/PROGRESS.md), [roadmap](docs/ROADMAP.md) y [despliegue](docs/DEPLOYMENT.md).
 
 ## Stack y arquitectura
 
@@ -14,7 +14,7 @@ Plataforma full-stack local de análisis y predicción de ventas diarias por tie
 | Ingeniería de datos | Airflow, PostgreSQL, MinIO, Parquet | SOURCE → RAW → BRONZE → SILVER → GOLD |
 | MLOps | MLflow | Experimentos, registro y versiones de modelos |
 | Infraestructura | Docker Compose → K3s de un nodo, Helm | Ejecución y despliegues locales |
-| Operación | GitHub Actions, Prometheus y Grafana; Loki pendiente | CI declarada; observabilidad fuera de F4 |
+| Operación | GitHub Actions, Prometheus, Grafana, Loki y Alertmanager | CI, observabilidad y alertas locales; laboratorio F5.5-A preparado |
 
 El navegador solo se comunica con Spring Boot, que consulta histórico/metadatos, delega inferencia a FastAPI y consulta Airflow como viewer. La aplicación no ejecuta ingestas, entrenamientos ni promociones. Más detalle en [aplicación](docs/APPLICATION.md), [arquitectura](docs/ARCHITECTURE.md) y [decisiones](docs/DECISIONS.md).
 

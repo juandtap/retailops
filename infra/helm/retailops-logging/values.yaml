@@ -16,3 +16,6 @@ resources:
   alloy:
     requests: {cpu: 50m, memory: 128Mi}
     limits: {cpu: 250m, memory: 256Mi}
+
+incidentLab:
+  enabled: false

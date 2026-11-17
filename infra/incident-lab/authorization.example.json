@@ -1,0 +1,15 @@
+{
+  "stage": "F5.5-A",
+  "action": "start",
+  "consent": "NOT_AUTHORIZED",
+  "scenario_id": "IL-000",
+  "exercise_id": "REPLACE_AFTER_EXPLICIT_F55_B_APPROVAL",
+  "issued_at": 0,
+  "expires_at": 0,
+  "namespace_uid": "REPLACE_FROM_READY_PREFLIGHT",
+  "cluster_server": "REPLACE_FROM_READY_PREFLIGHT",
+  "catalog_sha256": "REPLACE_WITH_CURRENT_BUNDLE_HASH",
+  "backup_id": "REPLACE_FROM_READY_PREFLIGHT",
+  "approved_by": "REPLACE_BY_FACILITATOR",
+  "approval_reference": "PENDING_USER_AUTHORIZATION"
+}

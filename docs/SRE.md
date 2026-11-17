@@ -1,5 +1,7 @@
 > F5.3 publicada y Actions exitosa según confirmación posterior del usuario. F5.4 autorizada y verificada para [backups/restauración aislada](BACKUP_RECOVERY.md), sin F5.5. El resto conserva el alcance y evidencia SRE histórica.
 
+Nota F5.5-A: [laboratorio de incidentes preparado](INCIDENT_LAB.md), sin despliegue ni incidentes ejecutados. Overlays de observabilidad/logging deshabilitados por defecto; no se aplicaron permisos nuevos. Provisionamiento y ejercicios F5.5-B requieren autorización posterior. Los datos, respaldos y recursos conservados permanecen intactos.
+
 # F5.3 — Alertas, SLI/SLO y operación local
 
 Validación local: 2026-11-17, America/Guayaquil.

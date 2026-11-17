@@ -1,5 +1,7 @@
 > F5.2 publicada y CI GitHub Actions exitosa según confirmación posterior del usuario. F5.3 incorpora alertas locales y estado de cierre explícito: seguir [SRE.md](SRE.md) para reactivar/cerrar el laboratorio con Alertmanager, sin F5.4. El resto registra la evidencia histórica F5.2.
 
+Nota F5.5-A: [laboratorio de incidentes preparado](INCIDENT_LAB.md), sin despliegue ni incidentes ejecutados. Overlays de observabilidad/logging deshabilitados por defecto; no se aplicaron permisos nuevos. Provisionamiento y ejercicios F5.5-B requieren autorización posterior. Los datos, respaldos y recursos conservados permanecen intactos.
+
 # F5.2 — Logs locales con Loki y Alloy
 
 Fecha de validación: 2026-11-17, America/Guayaquil. Implementación y prueba real en K3s; sin F5.3, alertas, backups, entrenamiento o promoción. F5.1 y su CI remota fueron confirmadas como publicadas/correctas por el usuario al autorizar esta fase. La nueva CI F5.2 solo se ha validado localmente.

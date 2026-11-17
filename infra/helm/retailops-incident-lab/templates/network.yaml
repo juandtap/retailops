@@ -1,0 +1,70 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny, labels: {app.kubernetes.io/instance: retailops-incident-lab}}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: dns-only, labels: {app.kubernetes.io/instance: retailops-incident-lab}}
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}
+          podSelector: {matchLabels: {k8s-app: kube-dns}}
+      ports: [{protocol: UDP, port: 53}, {protocol: TCP, port: 53}]
+{{- range $name, $port := dict "spring" 8080 "ml" 8000 }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: {{ $name }}-ingress, labels: {app.kubernetes.io/instance: retailops-incident-lab}}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/instance: retailops-incident-lab, app.kubernetes.io/component: {{ $name }}}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: retailops-incident-lab
+              app.kubernetes.io/component: gateway
+              {{- if eq $name "ml" }}
+              retailops.io/ml-client: allowed
+              {{- end }}
+      ports: [{protocol: TCP, port: {{ $port }}}]
+    - from:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: retailops-observability}}
+          podSelector: {matchLabels: {app.kubernetes.io/component: prometheus}}
+      ports: [{protocol: TCP, port: {{ $port }}}]
+{{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: gateway-outbound, labels: {app.kubernetes.io/instance: retailops-incident-lab}}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/instance: retailops-incident-lab, app.kubernetes.io/component: gateway}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector: {matchLabels: {app.kubernetes.io/instance: retailops-incident-lab, app.kubernetes.io/component: spring}}
+      ports: [{protocol: TCP, port: 8080}]
+    - to:
+        - podSelector: {matchLabels: {app.kubernetes.io/instance: retailops-incident-lab, app.kubernetes.io/component: ml}}
+      ports: [{protocol: TCP, port: 8000}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: gateway-ingress, labels: {app.kubernetes.io/instance: retailops-incident-lab}}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/instance: retailops-incident-lab, app.kubernetes.io/component: gateway}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: retailops-observability}}
+          podSelector: {matchLabels: {app.kubernetes.io/component: prometheus}}
+      ports: [{protocol: TCP, port: 8089}]
