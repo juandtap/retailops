@@ -1,0 +1,111 @@
+{{- range $name, $port := dict "prometheus" 9090 "grafana" 3000 "collector" 8088 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+spec:
+  type: ClusterIP
+  selector: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: {{ $name }}}
+  ports: [{name: http, port: {{ $port }}, targetPort: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  # Un escritor por PVC; la observabilidad local admite interrupción en upgrade.
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: {{ $name }}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: {{ $name }}}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") $ | sha256sum }}
+    spec:
+      automountServiceAccountToken: {{ eq $name "collector" }}
+      {{- if eq $name "collector" }}
+      serviceAccountName: retailops-metrics-reader
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ ternary 472 (ternary 65534 1000 (eq $name "prometheus")) (eq $name "grafana") }}
+        runAsGroup: {{ ternary 472 (ternary 65534 1000 (eq $name "prometheus")) (eq $name "grafana") }}
+        fsGroup: {{ ternary 472 (ternary 65534 1000 (eq $name "prometheus")) (eq $name "grafana") }}
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: {{ $name }}
+          image: {{ index $.Values.images $name | quote }}
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: {{ $port }}}]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources: {{ toYaml (index $.Values.resources $name) | nindent 12 }}
+          {{- if eq $name "prometheus" }}
+          args:
+            - --config.file=/etc/retailops/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            - --storage.tsdb.retention.time=48h
+            - --storage.tsdb.retention.size=512MB
+            - --web.listen-address=:9090
+          {{- else if eq $name "collector" }}
+          command: [python, /etc/retailops/collector.py]
+          env: [{name: PYTHONDONTWRITEBYTECODE, value: "1"}]
+          {{- else }}
+          env:
+            - {name: GF_SECURITY_ADMIN_USER__FILE, value: /run/grafana/admin-user}
+            - {name: GF_SECURITY_ADMIN_PASSWORD__FILE, value: /run/grafana/admin-password}
+            - {name: GOMEMLIMIT, value: 384MiB}
+            - {name: GF_UNIFIED_ALERTING_ENABLED, value: "false"}
+            - {name: GF_AUTH_ANONYMOUS_ENABLED, value: "false"}
+            - {name: GF_USERS_ALLOW_SIGN_UP, value: "false"}
+            - {name: GF_ANALYTICS_REPORTING_ENABLED, value: "false"}
+            - {name: GF_ANALYTICS_CHECK_FOR_UPDATES, value: "false"}
+            - {name: GF_PLUGINS_PREINSTALL_DISABLED, value: "true"}
+            - {name: GF_NEWS_NEWS_FEED_ENABLED, value: "false"}
+            - {name: GF_SERVER_ROOT_URL, value: http://localhost:3001/}
+          {{- end }}
+          startupProbe:
+            httpGet: {path: {{ ternary "/-/ready" (ternary "/api/health" "/health" (eq $name "grafana")) (eq $name "prometheus") }}, port: http}
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: {path: {{ ternary "/-/ready" (ternary "/api/health" "/health" (eq $name "grafana")) (eq $name "prometheus") }}, port: http}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: {{ ternary "/-/healthy" (ternary "/api/health" "/health" (eq $name "grafana")) (eq $name "prometheus") }}, port: http}
+            periodSeconds: 15
+          volumeMounts:
+            - {name: config, mountPath: /etc/retailops, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+            {{- if eq $name "prometheus" }}
+            - {name: data, mountPath: /prometheus}
+            {{- else if eq $name "grafana" }}
+            - {name: data, mountPath: /var/lib/grafana}
+            - {name: dashboards, mountPath: /var/lib/grafana/dashboards, readOnly: true}
+            - {name: config, mountPath: /etc/grafana/provisioning/datasources/prometheus.yml, subPath: datasources.yml, readOnly: true}
+            - {name: config, mountPath: /etc/grafana/provisioning/dashboards/retailops.yml, subPath: providers.yml, readOnly: true}
+            - {name: credentials, mountPath: /run/grafana, readOnly: true}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap: {name: retailops-observability-config}
+        - name: tmp
+          emptyDir: {medium: Memory, sizeLimit: 32Mi}
+        {{- if eq $name "prometheus" }}
+        - name: data
+          persistentVolumeClaim: {claimName: {{ $.Values.storage.prometheusClaim }}}
+        {{- else if eq $name "grafana" }}
+        - name: data
+          persistentVolumeClaim: {claimName: {{ $.Values.storage.grafanaClaim }}}
+        - name: dashboards
+          configMap: {name: retailops-dashboards}
+        - name: credentials
+          secret: {secretName: {{ $.Values.grafanaSecret }}, defaultMode: 0440}
+        {{- end }}
+{{- end }}

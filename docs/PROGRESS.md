@@ -4,7 +4,47 @@ Fecha: 2026-11-16, America/Guayaquil.
 
 ## Estado actual
 
-F0/F1/F2/F3 completadas en sus alcances registrados. Git limpio al inicio en main, último commit **7d2bcd0** (`feat: integrate RetailOps application and forecasting dashboard`), F3 ya comprometida por el usuario; no se recreó su commit. F4 CI/K3s/Helm autorizada por nueva solicitud, por delante del roadmap original. **F4 verificada y cerrada en el alcance local autorizado:** K3s Ready, imágenes existentes reutilizadas, tres Deployments disponibles y actualización/rollback Helm reales con smoke integrado aprobado en las tres etapas. Histórico/cutoff/v1/objetos y volúmenes conservados. Workloads app a cero y dependencias/puente/forwards detenidos; K3s activo y disabled como al inicio. Primer workflow GitHub reportado por el usuario falló en setup-java; selector corregido a Temurin 21, pendiente reejecución. GHCR no publicado. Cambios F4 sin commit, sin push/pull ni cambios de remotos. No F5.
+F4 completada en alcance local; CI RetailOps #2 exitosa en GitHub según confirmación del usuario. Baseline Git al iniciar F5.1: main limpio, commit cd3a898 (fix(ci): use supported Temurin Java 21 version). **F5.1 implementada y validada con métricas reales**, sin F5.2. Prometheus/Grafana/adaptador y tres apps disponibles durante la prueba; cuatro targets UP, datasource Grafana y dashboards reales verificados. Cierre: seis workloads a cero, tres PVC Bound, dependencias/puente/forwards detenidos; K3s Ready/activo/disabled. Histórico/cutoff/v1/objetos/volúmenes conservados. Cambios F5.1 sin commit, sin push/pull/publicación; nueva CI solo validada localmente.
+
+## F5.1 — Métricas, Prometheus y Grafana
+
+### Inspección y diseño
+
+Se leyeron instrucciones, ROADMAP/PROGRESS/DEPLOYMENT, arquitectura/decisiones e implementación real. Confirmado F4 conservado: tres Deployments 0/0, sin pods app, cuatro volúmenes Compose y ningún contenedor activo; K3s Ready con CoreDNS/local-path/metrics-server existentes. Host 30 GiB RAM, ~20 GiB disponibles al inicio y ~388 GiB disco. Salud no era Prometheus: API solo health, FastAPI sin métricas; imagen MLflow tampoco incluía cliente Prometheus.
+
+Chart separado de observabilidad, sin operador/exporters del host: Prometheus 3.16.0 y Grafana 13.3.1 por digest, adaptador Python stdlib que reutiliza metrics-server. RBAC get/list de nodos/pods/deployments/metrics pods en dos namespaces; pruebas efectivas niegan Secrets, nodes/proxy y pods/exec. Solo adaptador monta ServiceAccount. UID no root/capabilities drop/seccomp/filesystem raíz RO; namespace restricted. Nuevos PVC externos Helm Prometheus 2 GiB/Grafana 1 GiB, sin tocar los anteriores. Retención efectiva 2d/512MiB; Grafana password aleatorio externo 0600, sin anonimato ni unified alerting. Sin nuevo socket/hostPath, reglas UFW o servicios del SO.
+
+API añade Micrometer registry Prometheus, endpoint/histogramas; FastAPI añade prometheus-client 0.26.0 en uv/lock y métricas HTTP/proceso/modelo, sin URLs arbitrarias/features como etiquetas. nginx bloquea métricas por frontend. NetworkPolicies permiten scraping solo desde componentes observabilidad autorizados, conservando negocio F4. Estado dependencias desde probes SQL/HTTP existentes; modelo cargado no significa aprobado. Tres dashboards versionados cubren disponibilidad/modelo, HTTP y recursos. No dashboards con datos sintéticos o cero inventado.
+
+### Recursos e investigación MLflow
+
+MLflow se reactivó normalmente para el laboratorio, sin experimentar reinicios ni tocar imagen/workers/límite/registro. Lectura cgroup/smaps: primera muestra ~991.5 MiB anon, ~0.7 MiB file, ~1017.3 MiB memory.current y ~927.2 MiB swap; segunda ~980.6 MiB anon/~8 MiB file/~972.4 MiB swap. Varios procesos Python, no principalmente caché de archivos. Límite 1 GiB y MemorySwap combinado 2 GiB intactos; sin OOM/reinicios del servicio. Riesgo de presión/swap documentado sin aplicar aumento arbitrario o atribuir causa exacta a un worker.
+
+Grafana inicialmente limitado a 256 MiB sufrió OOM al arrancar; se conservó evidencia, elevó solo este nuevo componente a 512 MiB (request 256 MiB, Go soft limit 384MiB) con host ~18 GiB disponibles y mínimo oficial de evaluación. Presupuesto final adicional requests 225m/416 MiB, limits 1.6 CPU/960 MiB. Muestra final: Prometheus 41 MiB/1m, Grafana 326 MiB/3m, adaptador 16 MiB/1m (~383 MiB/5m); app API 172 MiB, ML 196 MiB, web 10 MiB. Muestras, no picos/capacidad productiva. No métricas continuas Docker privilegiadas, solo diagnóstico operativo/probes.
+
+### Implementación y pruebas estáticas/locales
+
+Cambios: API pom/properties/HealthTests; ML app/main.py, nuevo metrics.py/test_metrics, pyproject/uv.lock; Dockerfile.ml con lock app exportado separado, nginx; chart app 0.2.0/F5.1 con opción observabilidad; nuevo chart retailops-observability (RBAC, ConfigMaps, seguridad, storage refs, tres dashboards), infra/observability/storage/images.lock/tests; scripts build_observability_apps, observability, inspect_mlflow_memory, validate_observability, verify_observability; paso CI estático. Documentos AGENTS/README/ROADMAP/PROGRESS/ARCHITECTURE/DECISIONS/DEPLOYMENT y nuevo OBSERVABILITY.
+
+Maven verify **10 casos pasan**; uv locked pytest **13 pasan**, con aviso heredado TestClient/httpx (fixtures, sin entrenamiento/registro reales); **3 unittest** adaptador pasan. Tres imágenes app nuevas construidas sin sobrescribir F4/MLflow, etiqueta sha-f4fc9b2785b4adf4263b40b33d75e6f3e0b6eaa5. Usuario importó una vez el archivo en containerd y se confirmó inventario; no otros sudo. No cambios React: assets compilados previos reutilizados y comprobados por HTTP, sin repetir build/lint frontend. Helm lint/render + kubeconform **34 recursos válidos**, promtool config y **22 expresiones** válidas, actionlint/bash -n/py_compile/diff --check correctos. CI añade validación de observabilidad, aún sin ejecución remota F5.1.
+
+### Validación real
+
+Tres apps y tres componentes observabilidad Ready; tres PVC Bound. **Cuatro targets UP** (spring/fastapi/lab/prometheus), Grafana datasource health OK y consulta proxy entrega series reales. Tres dashboards/UID/títulos/leyendas/expresiones coinciden con fuentes; **24 consultas ejecutadas**. Modelo real v1/sales-pit-v1/candidate_local_preview cargado, gauge loaded=1 y cinco dependencias observadas UP. CPU/memoria por namespace desde metrics-server, solicitudes/latencias y métricas JVM/proceso reales. Grafana API anónima 401, frontend métricas 404 y cliente app rechazado por policy a Prometheus con servicio accesible desde Grafana autorizado.
+
+Smoke integrado funcional pasa sin datos futuros: contador Spring 400=1 por petición fuera de corte y FastAPI 422=1 por cuerpo inválido. No se realizó nueva inferencia válida ni experimento de fallos. Ventana medida de pruebas/probes: Spring ~0.367 req/s/p95 ~0.028 s, FastAPI ~0.333 req/s/p95 ~0.0095 s; no benchmark comercial. ~1334 series head Prometheus en muestra. Versiones/digests fijados tras consulta oficial; esos números proceden del laboratorio.
+
+Errores encontrados y corregidos: prueba Java inicial 404 por exportación desactivada en contexto de tests, habilitada explícitamente; Grafana OOM inicial, presupuesto corregido; etiqueta namespace del adaptador errónea en primera validación, detectada por PromQL y corregida con regresión. Se conservaron muestras antiguas de métricas: no considerar válido ese tramo previo ni purgar datos. Probe de rechazo inicialmente esperaba timeout y K3s devolvió ConnectionRefused; se contrastó con acceso autorizado positivo sin cambiar policy.
+
+### Integridad y cierre
+
+Snapshots SQL/registro/objetos antes/después idénticos: 1 297 296 ventas, suma decimal/fechas, 9 106 020 features, cutoff 2014-12-31, cero autorizaciones/etiquetas futuras; modelo v1/métricas y 19 versiones de objetos MLflow conservados. Cuatro volúmenes Compose idénticos. No se tocó SOURCE, bootstrap, pipelines, modelos, secretos existentes o permisos globales. No se hicieron hashes exhaustivos de tablas ni backups.
+
+Cierre ejecutado mediante observability.sh stop: seis Deployments 0/0, sin pods app/observabilidad, tres PVC Bound conservados; cuatro dependencias exited(0), sin OOM/reinicios; puente/tres forwards cerrados y sin listeners temporales. K3s previamente activo conserva Ready/activo/disabled. Namespace/Secrets/RBAC/releases/imágenes/métricas/Grafana persistentes conservados. Procedimiento de inicio/detención, comandos y límites en OBSERVABILITY.md.
+
+Evidencia privada .local/f51: logs Maven/pytest/build/static/Helm, images/digests/tag, mlflow-memory*, recursos, verification-*.json, verified-series/http-series, rbac-verified/network-deny/prometheus-flags, data-before/data-after/data-comparison/volumes-comparison, observability-live/app-live y closure/app-stopped/observability-stopped. Sin datos sintéticos presentados como medición real.
+
+Próxima tarea exacta: detenerse para revisión de F5.1; no iniciar F5.2, Loki, Alertmanager, backups o incidentes. Pendientes fuera de esta evidencia: CI remota del cambio F5.1, revisión visual de navegador, medición bajo carga/fallos y diagnóstico detallado de workers MLflow. Sin commit/push/pull/publicación.
 
 ## Corrección puntual CI — selector Java 21
 

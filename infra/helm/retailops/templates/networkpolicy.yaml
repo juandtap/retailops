@@ -17,5 +17,17 @@ spec:
         - podSelector:
             matchLabels: {app.kubernetes.io/instance: {{ $.Release.Name }}, app.kubernetes.io/component: {{ ternary "web" "api" (eq $name "api") }}}
       ports: [{protocol: TCP, port: {{ ternary 8080 8000 (eq $name "api") }}}]
+  {{- if $.Values.observability.enabled }}
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ $.Values.observability.namespace }}}
+          podSelector:
+            matchLabels: {app.kubernetes.io/part-of: retailops-observability}
+            matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values: [prometheus, collector]
+      ports: [{protocol: TCP, port: {{ ternary 8080 8000 (eq $name "api") }}}]
+  {{- end }}
   {{- end }}
 {{- end }}

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: retailops-observability-config
+data:
+  prometheus.yml: |
+{{ .Files.Get "files/prometheus.yml" | indent 4 }}
+  collector.py: |
+{{ .Files.Get "files/collector.py" | indent 4 }}
+  datasources.yml: |
+{{ .Files.Get "files/datasources.yml" | indent 4 }}
+  providers.yml: |
+{{ .Files.Get "files/providers.yml" | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: retailops-dashboards
+data:
+{{- range $path, $_ := .Files.Glob "files/dashboards/*.json" }}
+  {{ base $path }}: |
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}

@@ -1,0 +1,316 @@
+{
+  "uid": "retailops-resources",
+  "title": "RetailOps · Recursos desde metrics-server",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": [
+    "retailops",
+    "f5.1"
+  ],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "editable": false,
+  "panels": [
+    {
+      "id": 1,
+      "title": "CPU observada por contenedor, cores",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops_kubernetes_container_cpu_cores",
+          "legendFormat": "{{namespace}} / {{pod}} / {{container}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cores"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Memoria working set por contenedor",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops_kubernetes_container_memory_working_set_bytes",
+          "legendFormat": "{{namespace}} / {{pod}} / {{container}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "CPU requests de los pods",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops_kubernetes_container_cpu_requests_cores",
+          "legendFormat": "{{namespace}} / {{pod}} / {{container}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cores"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "CPU limits de los pods",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops_kubernetes_container_cpu_limits_cores",
+          "legendFormat": "{{namespace}} / {{pod}} / {{container}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cores"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Memoria requests de los pods",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops_kubernetes_container_memory_requests_bytes",
+          "legendFormat": "{{namespace}} / {{pod}} / {{container}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Memoria limits de los pods",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops_kubernetes_container_memory_limits_bytes",
+          "legendFormat": "{{namespace}} / {{pod}} / {{container}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "CPU del proceso Prometheus",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(process_cpu_seconds_total{job=\"prometheus\"}[5m])",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cores"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "RSS Prometheus y FastAPI",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "process_resident_memory_bytes{job=~\"prometheus|fastapi\"}",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    }
+  ],
+  "description": "Series reales; sin muestras una consulta muestra No data. up solo indica scraping, no aprobación del modelo ni disponibilidad productiva."
+}

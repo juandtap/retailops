@@ -1,20 +1,32 @@
 # Roadmap de implementación
 
-F0/F1/F2/F3 completadas; último commit F3 7d2bcd0 en main. Nueva solicitud autoriza **F4 CI/K3s/Helm** por delante del bloque DevOps original. Cambios F4 sin commit, sin publicación/push/pull. No autoriza observabilidad ni cambios de datos/modelos.
+F4 completada localmente y CI RetailOps #2 exitosa según usuario. **F5.1 autorizada e implementada: exclusivamente métricas, Prometheus y Grafana.** Sin Loki/Alertmanager/backups/incidentes ni F5.2. Cambios F5.1 sin commit/push/pull/publicación; CI nueva pendiente de ejecución remota.
+
+## F5.1 — Métricas, Prometheus y Grafana
+
+| Hecha | ID | Alcance | Evidencia / límites |
+| --- | --- | --- | --- |
+| [x] | F51-OBS01 | Inspección F4 conservado y presupuesto | App 0/0 inicial; MLflow anon/swap medidos, límite intacto; riesgo documentado |
+| [x] | F51-OBS02 | Instrumentación Java/FastAPI | 10 JUnit/13 pytest; endpoints reales, etiquetas acotadas y candidato explícito |
+| [x] | F51-OBS03 | Prometheus/Grafana/adaptador seguros y persistentes | 34 recursos estáticos válidos, tres PVC Bound, RBAC mínimo y sin UFW/host mounts |
+| [x] | F51-OBS04 | Dashboards/targets/PromQL reales | Cuatro targets UP, datasource OK, tres dashboards y 24 consultas; 22 expresiones validadas |
+| [x] | F51-OBS05 | Integridad, operación y cierre | Histórico/v1/19 versiones de objetos/cuatro volúmenes iguales; seis workloads a cero, PVC y K3s conservados |
+
+Próxima tarea exacta: revisión F5.1 y detenerse antes de F5.2. Procedimiento para reactivar/detener en OBSERVABILITY.md, sin repetir instalación/importación/UFW. No afirmar pruebas de CI remota nueva, navegador, carga, fallos o backups no ejecutadas.
 
 ## F4 autorizada — CI/CD, K3s y Helm
 
 | Hecha | ID | Alcance | Estado y evidencia |
 | --- | --- | --- | --- |
 | [x] | F4-DEV01 | Verificar Git/host y fijar estrategia externa de datos | main limpio inicial, commit F3 confirmado; host/red/recursos inspeccionados |
-| [x] | F4-DEV02 | CI y publicación manual separada | actionlint válido; primer CI GitHub falló en setup-java, selector corregido a Temurin 21 y pendiente reejecución; sin publicación |
+| [x] | F4-DEV02 | CI y publicación manual separada | actionlint válido; primer intento falló en setup-java; selector Temurin 21 corregido y CI #2 exitosa según usuario; sin publicación |
 | [x] | F4-DEV03 | Imágenes versionadas y chart | Seis imágenes nuevas; Helm lint/render y 15 recursos Kubernetes válidos |
 | [x] | F4-DEV04 | Operación reproducible y documentación | DEPLOYMENT.md; scripts build/upgrade/smoke/rollout/rehearse/rollback; Secrets/PVC externos |
 | [x] | F4-DEV05 | Instalar K3s y verificar despliegue/actualización/rollback | Ready y tres Deployments disponibles; Helm 1→2→3 rollback a 1, tres smokes completos y datos/v1 conservados; cierre local verificado |
 
-F4 cerrada en alcance local autorizado: contexto privado, imágenes importadas, SQL/modelo/19 versiones de objetos y cuatro volúmenes verificados antes/después. CI local validada; primer intento GitHub falló en setup-java y queda pendiente reejecución con Temurin 21. GHCR no invocado. Cierre: app a cero, PVC/release conservados, dependencias/puente/forwards detenidos; K3s activo y disabled. Evidencia y límites en DEPLOYMENT/PROGRESS.
+F4 cerrada en alcance local autorizado: contexto privado, imágenes importadas, SQL/modelo/19 versiones de objetos y cuatro volúmenes verificados antes/después. CI local validada; CI #2 GitHub exitosa según usuario tras corregir selector Java. GHCR no invocado. Cierre: app a cero, PVC/release conservados, dependencias/puente/forwards detenidos; K3s activo y disabled. Evidencia y límites en DEPLOYMENT/PROGRESS.
 
-Próxima tarea exacta: revisión/commit del usuario y reejecución de CI tras corregir el selector Java; detenerse antes de F5. Reactivación solo si el usuario la solicita, reutilizando recursos existentes según DEPLOYMENT.md. **No reinstalar ni repetir prepare-host.py/install.sh, importación o reglas UFW.** Sin commits/push/pull.
+Cierre F4 histórico: CI corregida y #2 exitosa; F5.1 autorizada posteriormente arriba. Reactivación solo si el usuario la solicita, reutilizando recursos existentes según DEPLOYMENT.md. **No reinstalar ni repetir prepare-host.py/install.sh, importación o reglas UFW.** Sin commits/push/pull.
 
 ## Fase 0 — Foundation
 

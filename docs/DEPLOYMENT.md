@@ -1,8 +1,10 @@
 # Despliegue local — F4
 
-**F4 verificada en el alcance local autorizado:** K3s Ready, tres Deployments disponibles, smoke integrado y actualización/rollback Helm reales. CI validada localmente; primer intento GitHub falló en setup-java. Selector corregido a Temurin 21, pendiente reejecución; GHCR no publicado. Sin F5.
+**F4 verificada en el alcance local autorizado:** K3s Ready, tres Deployments disponibles, smoke integrado y actualización/rollback Helm reales. CI #2 GitHub exitosa según usuario después de corregir selector a Temurin 21; GHCR no publicado. Sin F5.
 
 Cierre del ensayo 2026-11-16, America/Guayaquil: workloads app escalados a cero, cuatro dependencias Compose detenidas, puente y forwards cerrados. K3s permanece activo y disabled para autoarranque, igual que al inicio de esta ejecución. Namespace, Secrets, release, PVC, caché, volúmenes y datos conservados.
+
+F5.1 se incorporó después: [observabilidad, recursos y operación](OBSERVABILITY.md). Para activar también métricas usar ese procedimiento y sus values instrumentados, conservando recursos F4.
 
 ## Arquitectura y alcance
 

@@ -1,0 +1,22 @@
+{{- range $name, $port := dict "prometheus" 9090 "grafana" 3000 "collector" 8088 }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: {{ $name }}}
+  policyTypes: [Ingress]
+  {{- if eq $name "grafana" }}
+  ingress: []
+  {{- else }}
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: retailops-observability
+              app.kubernetes.io/component: {{ ternary "grafana" "prometheus" (eq $name "prometheus") }}
+      ports: [{protocol: TCP, port: {{ $port }}}]
+  {{- end }}
+{{- end }}

@@ -6,6 +6,7 @@ from typing import Annotated
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel,ConfigDict,Field,StringConstraints,field_validator
 from .data import CUTOFF,FIT_DATE,inference_features
+from .metrics import instrument
 
 class PredictionRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')
@@ -41,8 +42,15 @@ def create_app(loader=None):
         elif version:=os.environ.get('ML_MODEL_VERSION'):
             from .runtime import ModelRuntime
             app.state.model=ModelRuntime.load(version)
+        app.state.model_metric.clear()
+        if app.state.model is not None:
+            info=app.state.model.information()
+            app.state.model_metric.labels(*(str(info[key]) for key in ('name','version','feature_version','purpose'))).set(1)
         yield
+        app.state.model=None
+        app.state.model_metric.clear()
     app=FastAPI(title='RetailOps — Servicio ML',version='0.2.0',lifespan=lifespan)
+    instrument(app)
     @app.get('/health',tags=['salud'])
     def health():return {'status':'ok'}
     @app.get('/model',tags=['modelo'])

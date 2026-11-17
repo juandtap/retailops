@@ -2,6 +2,6 @@ apiVersion: v2
 name: retailops
 description: Aplicación local RetailOps con dependencias externas explícitas
 type: application
-version: 0.1.0
-appVersion: "f4"
+version: 0.2.0
+appVersion: "f5.1"
 kubeVersion: ">=1.30.0-0"

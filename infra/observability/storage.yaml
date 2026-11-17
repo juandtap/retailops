@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: retailops-observability
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.37
+---
+# Persistencia externa al ciclo Helm. Nunca borrar PVC para reiniciar el laboratorio.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: retailops-prometheus
+  namespace: retailops-observability
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources: {requests: {storage: 2Gi}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: retailops-grafana
+  namespace: retailops-observability
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources: {requests: {storage: 1Gi}}

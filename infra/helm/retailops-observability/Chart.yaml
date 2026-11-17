@@ -1,0 +1,7 @@
+apiVersion: v2
+name: retailops-observability
+description: Métricas locales RetailOps, sin operadores ni agentes del host
+type: application
+version: 0.1.0
+appVersion: "f5.1"
+kubeVersion: ">=1.30.0-0"

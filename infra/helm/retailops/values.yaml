@@ -34,3 +34,7 @@ resources:
 rolloutMarker: ""
 # Alias opcionales para dependencias Compose con nombres internos validados.
 hostAliases: []
+# F5.1: scraping permitido solo desde los componentes del namespace indicado.
+observability:
+  enabled: false
+  namespace: retailops-observability

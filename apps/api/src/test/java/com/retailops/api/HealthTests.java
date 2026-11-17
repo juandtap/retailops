@@ -29,4 +29,13 @@ class HealthTests {
             assertThat(response.statusCode()).isEqualTo(200);
         }
     }
+    @Test
+    void exposesPrometheusMetricsSeparatelyFromHealth() throws Exception {
+        var client = HttpClient.newHttpClient();
+        client.send(HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/actuator/health")).build(), HttpResponse.BodyHandlers.ofString());
+        var response = client.send(HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/actuator/prometheus")).build(), HttpResponse.BodyHandlers.ofString());
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).contains("jvm_memory_used_bytes", "http_server_requests_seconds_count", "http_server_requests_seconds_bucket");
+        assertThat(response.body()).doesNotContain("pg_api_password", "jdbc:postgresql");
+    }
 }
