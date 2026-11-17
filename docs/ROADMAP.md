@@ -1,6 +1,18 @@
 # Roadmap de implementación
 
-**F5.3 implementada y validada localmente**, con cierre conservador comprobado. F5.2 publicada y GitHub Actions exitosa según usuario. Sin F5.4, fallos destructivos, notificaciones externas ni commit/push/pull/publicación.
+**F5.4 implementada y validada en dos restauraciones aisladas del plano de datos/artefacto**, con cierre conservador verificado. F5.3 publicada y Actions exitosa según usuario. Sin F5.5, incidentes destructivos, notificaciones/transferencias externas, commit/push/pull/GHCR.
+
+## F5.4 — Backups y restauración aislada
+
+| Hecha | ID | Alcance | Evidencia / límites |
+| --- | --- | --- | --- |
+| [x] | F54-DR01 | Inventario y consistencia híbrida | Quiescencia real, fuentes autoritativas/cachés/PVC distinguidos; nombres internos buckets autorizados solo en clone |
+| [x] | F54-DR02 | Backup cifrado y manifiestos verificables | Dos copias únicas externas, SHA/MAC/roles sin passwords nativos; código/config/logs/secretos solo cifrados |
+| [x] | F54-DR03 | Guardas y pruebas estáticas | Seis unittest backup/diez infra + contratos; traversal/tampering/conflictos/origen rechazados |
+| [x] | F54-DR04 | Restauración real, versiones y candidato | Dos restores validated: 167 tablas/313 versiones/586 referencias SQL, v1/contrato y artefacto cargados |
+| [x] | F54-DR05 | RPO/RTO, integridad y cierre | Backup64s/verify2.65s/restore+validación94.9s y94.2s; origen igual, diez workloads0/sietePVC Bound; sin RTO integral |
+
+Próxima tarea exacta: revisión F5.4 y eventual CI remota del usuario; detenerse antes de F5.5. [Procedimiento y límites](BACKUP_RECOVERY.md). No copias externas ni borrado automático de backups válidos.
 
 ## F5.3 — Alertas, SLI/SLO y runbooks
 

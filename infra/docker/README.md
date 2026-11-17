@@ -89,3 +89,7 @@ Perfil `mlops` en compose.mlflow.yaml, backend PostgreSQL y bucket MinIO propios
 ## F2 — Airflow manual
 
 Perfil airflow con LocalExecutor y base/metadatos independientes, puerto 8081 y logs persistentes. Preparación, arranque, DAG seguro y autorización mensual futura en [AIRFLOW.md](../../docs/AIRFLOW.md). Sin SOURCE ni Docker socket montados. No lanzar comandos de publicación como parte del arranque; no down -v.
+
+## F5.4 — Recuperación aislada
+
+Usar [BACKUP_RECOVERY.md](../../docs/BACKUP_RECOVERY.md), no init-secrets, migraciones ni verify/persistence de entorno vacío sobre los volúmenes cargados. Backup lógico PG y MinIO frío en contenedor existente; restore sobre recursos nuevos de red interna, sin montar volúmenes originales, sin sobrescritura o remapeo de VersionId. Backups cifrados/claves/workspaces fuera del repo. No hay limpieza automática, conmutación de apps o autorización para F5.5.

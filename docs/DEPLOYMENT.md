@@ -4,6 +4,8 @@
 
 Cierre del ensayo 2026-11-16, America/Guayaquil: workloads app escalados a cero, cuatro dependencias Compose detenidas, puente y forwards cerrados. K3s permanece activo y disabled para autoarranque, igual que al inicio de esta ejecución. Namespace, Secrets, release, PVC, caché, volúmenes y datos conservados.
 
+F5.4 añade después [backup cifrado, restauración aislada y límites RPO/RTO](BACKUP_RECOVERY.md). Dos restauraciones completas del plano de datos/artefacto verificadas, sin conmutación de apps, reinstalación K3s, importación nueva a containerd o cambios UFW. Backups/claves fuera del repo, originales conservados y sin F5.5.
+
 F5.3 añade después [Alertmanager local, SLI/SLO propuestos y operación segura](SRE.md), con [runbooks](RUNBOOKS.md), dos PVC adicionales y sin F5.4. Para cierre con alertas, desactivar y confirmar lab_active antes de escalar servicios; usar el orden descrito en SRE.md.
 
 F5.2 incorpora después [Loki/Alloy, fuentes cubiertas, consultas, reactivación y cierre](LOGGING.md). Sin F5.3; cinco PVC y dos releases de observabilidad conservados. El usuario arrancó K3s y realizó una importación nueva necesaria para los cambios de logs; no reinstalar ni repetir esa importación.

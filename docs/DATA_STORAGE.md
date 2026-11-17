@@ -118,3 +118,7 @@ Los 32 lotes mensuales del manifiesto siguen sin liberar. Los scripts de prueba 
 ## Evolución F1-04B (estado posterior al diseño F1-02)
 
 GOLD ya contiene features/etiquetas del snapshot bootstrap y metadatos de 24 bloques. Control/data V3 son nuevas e inmutables tras aplicación; Flyway sigue siendo el único runner. El ingestor recibe SELECT de training.sales y SELECT/INSERT GOLD; trainer recibe solo SELECT de training.gold_features y training.gold_labels, sin USAGE en gold ni escritura. [Contrato y verificación real](FEATURE_ENGINEERING.md). Las descripciones de tablas vacías anteriores corresponden al cierre F1-02, no al estado actual.
+
+## F5.4 — Backup y restauración del plano de datos
+
+La ausencia de backups descrita en F1-02 es histórica. [BACKUP_RECOVERY.md](BACKUP_RECOVERY.md) documenta pg_dump nativo, MinIO frío con VersionId preservado y dos restores nuevos con hashes lógicos completos/identidad v1. No se editaron migraciones/contratos ni se ejecutaron verificaciones de entorno vacío. PVC/historias operativas y recuperación integral de apps/host quedan fuera del alcance validado.

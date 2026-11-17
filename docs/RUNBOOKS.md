@@ -1,6 +1,6 @@
 # Runbooks operativos F5.3
 
-Laboratorio de un nodo, diagnóstico local y recuperación conservadora. No autorizan F5.4, ensayos destructivos, borrados, UFW, cambios de modelo o aumento de límites. Los enlaces de alerta son rutas del repositorio; el dashboard SRE ofrece enlaces HTTP locales a métricas, logs y Alertmanager. Loki solo contiene eventos HTTP propios de api/ml/web; una búsqueda vacía no descarta fallos.
+Laboratorio de un nodo, diagnóstico local y recuperación conservadora. F5.4 autoriza después backups y restauración aislada según BACKUP_RECOVERY.md; no autoriza F5.5, ensayos destructivos, borrados originales, UFW, cambios de modelo o aumento de límites conservados. Los enlaces de alerta son rutas del repositorio; el dashboard SRE ofrece enlaces HTTP locales a métricas, logs y Alertmanager. Loki solo contiene eventos HTTP propios de api/ml/web; una búsqueda vacía no descarta fallos.
 
 Antes de diagnosticar, registrar hora UTC, alerta, servicio y si hay cierre planificado. Exportar desde la raíz:
 
@@ -175,3 +175,13 @@ retailops_kubernetes_container_memory_working_set_bytes
 **Hipótesis:** OOM, probe, proceso fallido o restart controlado; contrastar timestamps y cambios autorizados. La métrica no registra la causa.
 
 **Recuperación segura:** conservar evidencia y corregir la causa antes de otro restart. Rollout de configuración solo si el cambio fue identificado y revisado; mantener PVC/Secrets/modelo. No matar pods en bucle, borrar datos ni elevar límites a ciegas. Un restart controlado puede producir señales transitorias reales: anotarlo, no purgar métricas para ocultarlo.
+
+## Backup inválido o recuperación de datos
+
+**Síntomas:** manifiesto incompleto, hash/MAC incorrecto, snapshot SQL/S3 diferente, referencia VersionId ausente o solicitud de recuperación real. No reparar referencias ni ejecutar bootstrap/migraciones para hacer coincidir datos.
+
+**Diagnóstico:** conservar ID del backup, informe/log privado y código de salida, sin publicar claves/payloads. Confirmar quiescencia (`lab_active=0`, réplicas cero, scheduler/MLflow/API parados) y consultar el inventario cifrado solo en workspace privado nuevo. `verify` no inicia bases ni restaura; un rechazo de MAC/archivos debe impedir continuar. Ante fallos de herramienta, revisar localmente logs del contenedor **aislado** exacto, no imprimir env/secrets ni reiniciar el origen.
+
+**Hipótesis:** copia incompleta/corrupta, clave equivocada, versión incompatible, falta de espacio, endpoint/red del clone o representación de catálogo normalizada por PostgreSQL. Los hashes completos de filas no se relajan; CHECK/NOT NULL solo admiten equivalencia verificada por parser/columnas.
+
+**Recuperación segura:** seguir [BACKUP_RECOVERY.md](BACKUP_RECOVERY.md), elegir otra copia verificada o clave correcta y un workspace/recurso nuevo. Si no se conservan VersionId, detener y presentar alternativa antes de modificar SQL/objetos. `backup_recovery.py stop --workspace ...` verifica nombres/etiquetas y detiene solo recursos temporales; no borra datos. No sustituir servicios originales ni declarar RTO integral sin aplicaciones probadas y decisión operadora explícita.

@@ -1,3 +1,5 @@
+> F5.3 publicada y Actions exitosa según confirmación posterior del usuario. F5.4 autorizada y verificada para [backups/restauración aislada](BACKUP_RECOVERY.md), sin F5.5. El resto conserva el alcance y evidencia SRE histórica.
+
 # F5.3 — Alertas, SLI/SLO y operación local
 
 Validación local: 2026-11-17, America/Guayaquil.

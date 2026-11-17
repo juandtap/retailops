@@ -167,3 +167,5 @@ CI y despliegue F4: [DEPLOYMENT.md](docs/DEPLOYMENT.md). Workflows/imágenes val
 F5.1: [observabilidad con Prometheus y Grafana](docs/OBSERVABILITY.md), dashboards provisionados y cuatro targets UP verificados. Laboratorio detenido conservando métricas/PVC/credenciales; procedimiento de reactivación documentado. F5.2: [Loki/Alloy y correlación](docs/LOGGING.md); cobertura de logs HTTP propios, persistencia real y cierre conservador. Sin F5.3.
 
 F5.3: [Alertmanager local, SLI/SLO y cierre planificado](docs/SRE.md); [runbooks operativos](docs/RUNBOOKS.md). Notificaciones solo al receptor local, sin destinatarios externos; presupuestos condicionados a cobertura suficiente. No avanzar a F5.4.
+
+F5.4: [backups cifrados y restauración aislada](docs/BACKUP_RECOVERY.md). Dos restauraciones del plano de datos/artefacto comprobadas (~95s cada una), con VersionId, hashes completos y candidato v1 conservados. Copias privadas fuera de Git, clave separada, sin offsite ni RTO integral de aplicaciones. Cierre conserva originales/PVC; sin F5.5.

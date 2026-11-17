@@ -60,6 +60,8 @@ jobs:
         run: scripts/validate_logging.sh
       - name: Alertas, SLI y SLO estáticos
         run: scripts/validate_sre.sh
+      - name: "Backups: cifrado, guardas y contratos estáticos"
+        run: scripts/validate_backup.sh
       - name: Construir imágenes sin publicar
         run: scripts/build_images.sh
       - name: Importar DAGs reales sin datos ni secretos
