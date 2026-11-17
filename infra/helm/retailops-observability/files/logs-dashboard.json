@@ -1,0 +1,180 @@
+{
+  "uid": "retailops-logs",
+  "title": "RetailOps · Logs correlacionados",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "tags": [
+    "retailops",
+    "logs"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "request_id",
+        "label": "request_id (32 caracteres hexadecimales)",
+        "type": "textbox",
+        "current": {
+          "text": ".*",
+          "value": ".*"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP 5xx",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "retailops-loki"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{environment=\"local\"} | json | status >= 500",
+          "queryType": "range",
+          "datasource": {
+            "type": "loki",
+            "uid": "retailops-loki"
+          }
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true
+      }
+    },
+    {
+      "id": 2,
+      "title": "Excepciones Spring",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "retailops-loki"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service=\"api\"} | json | exception_type != \"\"",
+          "queryType": "range",
+          "datasource": {
+            "type": "loki",
+            "uid": "retailops-loki"
+          }
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true
+      }
+    },
+    {
+      "id": 3,
+      "title": "Errores FastAPI",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "retailops-loki"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service=\"ml\"} | json | level=\"ERROR\"",
+          "queryType": "range",
+          "datasource": {
+            "type": "loki",
+            "uid": "retailops-loki"
+          }
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true
+      }
+    },
+    {
+      "id": 4,
+      "title": "nginx",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "retailops-loki"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service=\"web\"}",
+          "queryType": "range",
+          "datasource": {
+            "type": "loki",
+            "uid": "retailops-loki"
+          }
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true
+      }
+    },
+    {
+      "id": 5,
+      "title": "Solicitudes correlacionadas",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "retailops-loki"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{environment=\"local\"} | json | request_id=~\"${request_id:regex}\"",
+          "queryType": "range",
+          "datasource": {
+            "type": "loki",
+            "uid": "retailops-loki"
+          }
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true
+      }
+    }
+  ]
+}

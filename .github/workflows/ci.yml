@@ -56,6 +56,8 @@ jobs:
         run: scripts/ci/validate.sh
       - name: Métricas y observabilidad estática
         run: scripts/validate_observability.sh
+      - name: Logs estáticos Loki y Alloy
+        run: scripts/validate_logging.sh
       - name: Construir imágenes sin publicar
         run: scripts/build_images.sh
       - name: Importar DAGs reales sin datos ni secretos

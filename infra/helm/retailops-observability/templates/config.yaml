@@ -9,6 +9,9 @@ data:
 {{ .Files.Get "files/collector.py" | indent 4 }}
   datasources.yml: |
 {{ .Files.Get "files/datasources.yml" | indent 4 }}
+{{- if .Values.logging.enabled }}
+{{ .Files.Get "files/loki-datasource.yml" | indent 4 }}
+{{- end }}
   providers.yml: |
 {{ .Files.Get "files/providers.yml" | indent 4 }}
 ---
@@ -20,4 +23,9 @@ data:
 {{- range $path, $_ := .Files.Glob "files/dashboards/*.json" }}
   {{ base $path }}: |
 {{ $.Files.Get $path | indent 4 }}
+{{- end }}
+
+{{- if .Values.logging.enabled }}
+  logs.json: |
+{{ .Files.Get "files/logs-dashboard.json" | indent 4 }}
 {{- end }}

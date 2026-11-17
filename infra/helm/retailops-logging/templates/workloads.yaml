@@ -1,0 +1,113 @@
+{{- if and (gt (int .Values.replicas) 0) (not .Values.collectionAuthorized) }}
+{{- fail "Autorizar primero RBAC pods/log; no arrancar recolección pendiente" }}
+{{- end }}
+{{- range $name, $port := dict "loki" 3100 "alloy" 12345 }}
+{{- if and (not $.Values.allowUnpinnedImages) (not (regexMatch "@sha256:[a-f0-9]{64}$" (index $.Values.images $name))) }}
+{{- fail "Fijar imágenes Loki/Alloy por digest verificado; tags solo para validación local" }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: retailops-{{ $name }}-config
+data:
+  config: |
+{{ $.Files.Get (ternary "files/loki.yaml" "files/config.alloy" (eq $name "loki")) | indent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+spec:
+  type: ClusterIP
+  selector: {app.kubernetes.io/part-of: retailops-logging, app.kubernetes.io/component: {{ $name }}}
+  ports: [{name: http, port: {{ $port }}, targetPort: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+spec:
+  replicas: {{ $.Values.replicas }}
+  strategy: {type: Recreate}
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels: {app.kubernetes.io/part-of: retailops-logging, app.kubernetes.io/component: {{ $name }}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/part-of: retailops-logging, app.kubernetes.io/component: {{ $name }}}
+      annotations:
+        checksum/config: {{ $.Files.Get (ternary "files/loki.yaml" "files/config.alloy" (eq $name "loki")) | sha256sum }}
+    spec:
+      automountServiceAccountToken: {{ eq $name "alloy" }}
+      {{- if eq $name "alloy" }}
+      serviceAccountName: retailops-log-reader
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: {{ $name }}
+          image: {{ index $.Values.images $name | quote }}
+          imagePullPolicy: IfNotPresent
+          args:
+            {{- if eq $name "loki" }}
+            - -config.file=/etc/retailops/config
+            {{- else }}
+            - run
+            - --server.http.listen-addr=0.0.0.0:12345
+            - --storage.path=/var/lib/alloy
+            - --disable-reporting
+            - /etc/retailops/config
+            {{- end }}
+          env:
+            - {name: GOMEMLIMIT, value: {{ ternary "384MiB" "192MiB" (eq $name "loki") | quote }}}
+          ports: [{name: http, containerPort: {{ $port }}}]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources: {{ toYaml (index $.Values.resources $name) | nindent 12 }}
+          startupProbe:
+            httpGet: {path: {{ ternary "/ready" "/-/ready" (eq $name "loki") }}, port: http}
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: {path: {{ ternary "/ready" "/-/ready" (eq $name "loki") }}, port: http}
+          livenessProbe:
+            httpGet: {path: {{ ternary "/metrics" "/-/healthy" (eq $name "loki") }}, port: http}
+          volumeMounts:
+            - {name: config, mountPath: /etc/retailops, readOnly: true}
+            - {name: data, mountPath: /var/lib/{{ $name }}}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: config
+          configMap: {name: retailops-{{ $name }}-config}
+        - name: data
+          persistentVolumeClaim: {claimName: {{ ternary $.Values.storage.lokiClaim $.Values.storage.alloyClaim (eq $name "loki") }}}
+        - name: tmp
+          emptyDir: {medium: Memory, sizeLimit: 32Mi}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/part-of: retailops-logging, app.kubernetes.io/component: {{ $name }}}
+  policyTypes: [Ingress]
+  {{- if eq $name "alloy" }}
+  ingress: []
+  {{- else }}
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {app.kubernetes.io/part-of: retailops-logging, app.kubernetes.io/component: alloy}
+        - podSelector:
+            matchLabels: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: grafana}
+      ports: [{protocol: TCP, port: 3100}]
+  {{- end }}
+{{- end }}

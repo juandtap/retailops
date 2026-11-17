@@ -22,7 +22,11 @@ class ExternalServices {
     ExternalServices(@Value("${retailops.app.ml-url}")String ml,@Value("${retailops.app.airflow-url}")String airflow,
                      @Value("${retailops.app.mlflow-url}")String tracking,@Value("${retailops.app.minio-url}")String minio,
                      @Value("${retailops.app.secrets-dir}")String secrets) {
-        this.ml=client(ml);this.airflow=client(airflow);this.tracking=client(tracking);this.minio=client(minio);
+        this.ml=client(ml).mutate().requestInterceptor((request, body, execution) -> {
+            String identity=org.slf4j.MDC.get("request_id");
+            if(identity!=null)request.getHeaders().set("X-Request-ID",identity);
+            return execution.execute(request,body);
+        }).build();this.airflow=client(airflow);this.tracking=client(tracking);this.minio=client(minio);
         this.reader=Path.of(secrets,"airflow_reader.json");
     }
     private static RestClient client(String base) {

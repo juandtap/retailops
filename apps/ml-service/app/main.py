@@ -7,6 +7,7 @@ from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel,ConfigDict,Field,StringConstraints,field_validator
 from .data import CUTOFF,FIT_DATE,inference_features
 from .metrics import instrument
+from .request_logging import RequestLogging
 
 class PredictionRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')
@@ -51,6 +52,7 @@ def create_app(loader=None):
         app.state.model_metric.clear()
     app=FastAPI(title='RetailOps — Servicio ML',version='0.2.0',lifespan=lifespan)
     instrument(app)
+    app.add_middleware(RequestLogging)
     @app.get('/health',tags=['salud'])
     def health():return {'status':'ok'}
     @app.get('/model',tags=['modelo'])

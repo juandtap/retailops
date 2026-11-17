@@ -4,6 +4,8 @@
 
 Cierre del ensayo 2026-11-16, America/Guayaquil: workloads app escalados a cero, cuatro dependencias Compose detenidas, puente y forwards cerrados. K3s permanece activo y disabled para autoarranque, igual que al inicio de esta ejecución. Namespace, Secrets, release, PVC, caché, volúmenes y datos conservados.
 
+F5.2 incorpora después [Loki/Alloy, fuentes cubiertas, consultas, reactivación y cierre](LOGGING.md). Sin F5.3; cinco PVC y dos releases de observabilidad conservados. El usuario arrancó K3s y realizó una importación nueva necesaria para los cambios de logs; no reinstalar ni repetir esa importación.
+
 F5.1 se incorporó después: [observabilidad, recursos y operación](OBSERVABILITY.md). Para activar también métricas usar ese procedimiento y sus values instrumentados, conservando recursos F4.
 
 ## Arquitectura y alcance

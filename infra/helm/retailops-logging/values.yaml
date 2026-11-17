@@ -1,0 +1,18 @@
+# Activar solo después de autorización explícita del RBAC propuesto.
+collectionAuthorized: false
+replicas: 0
+images:
+  loki: grafana/loki@sha256:b43c257ccfc925d4a50b8717cac61a3b51df8c48d01847936057e5c4075a24a7
+  alloy: grafana/alloy@sha256:9acc2529bc1edb7f5b2bd801dd8334ebc80c158e3a9e5526ecd7c9a273d43189
+# Loki 3.7.10 / Alloy 1.22.0; digests verificados en registro oficial.
+allowUnpinnedImages: false
+storage:
+  lokiClaim: retailops-loki
+  alloyClaim: retailops-alloy
+resources:
+  loki:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {cpu: 500m, memory: 512Mi}
+  alloy:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {cpu: 250m, memory: 256Mi}

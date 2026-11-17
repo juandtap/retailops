@@ -1,10 +1,32 @@
 # Progreso real de RetailOps
 
-Fecha: 2026-11-16, America/Guayaquil.
+Fecha: 2026-11-17, America/Guayaquil.
 
 ## Estado actual
 
-F4 completada en alcance local; CI RetailOps #2 exitosa en GitHub según confirmación del usuario. Baseline Git al iniciar F5.1: main limpio, commit cd3a898 (fix(ci): use supported Temurin Java 21 version). **F5.1 implementada y validada con métricas reales**, sin F5.2. Prometheus/Grafana/adaptador y tres apps disponibles durante la prueba; cuatro targets UP, datasource Grafana y dashboards reales verificados. Cierre: seis workloads a cero, tres PVC Bound, dependencias/puente/forwards detenidos; K3s Ready/activo/disabled. Histórico/cutoff/v1/objetos/volúmenes conservados. Cambios F5.1 sin commit, sin push/pull/publicación; nueva CI solo validada localmente.
+**F5.2 implementada y validada con logs reales** de Spring/FastAPI/nginx, correlación de request_id en tres servicios y persistencia tras reemplazar Loki. F5.1 publicada y CI remota exitosa según confirmación del usuario. Sin F5.3, incidentes destructivos, nuevos lotes/modelos ni commit/push/pull/publicación F5.2. Cobertura y límites en [LOGGING.md](LOGGING.md).
+
+## F5.2 — Loki, Alloy y correlación
+
+Autorización posterior al cierre F5.1: centralización local, sin F5.3. Inspección de arquitectura/decisiones/despliegue/observabilidad, chart/policies/Compose/puente e implementación real. main limpio al comenzar. K3s estaba inactive/disabled; el usuario ejecutó su arranque, sin reinstalar/UFW. Usuario autorizó expresamente Roles de Alloy en retailops y retailops-observability (`get/list/watch pods`, `get pods/log`) y realizó una importación nueva de las tres imágenes app necesarias. No sudo ejecutado por el agente.
+
+Implementación: chart separado `infra/helm/retailops-logging` con Loki 3.7.10/Alloy 1.22.0 fijados por digest oficial, dos PVC propios 2 GiB/256 MiB, RBAC namespaced y NetworkPolicies, UID no root/raíz RO/seccomp/capabilities drop. Recolección API, sin socket Docker/hostPath/node proxy/privilegios. Loki TSDB v13/filesystem/WAL, retención 48h con compactor, ingestión 0.005 MB/s/burst 1 MB y límites de streams/consultas/caches. Requests adicionales 150m/384 MiB, limits 750m/768 MiB; no cambios de recursos/workers MLflow.
+
+Spring añade consola JSON y RequestLoggingFilter; ExternalServices propaga X-Request-ID a FastAPI. Python añade request_logging.py/middleware; nginx access JSON sin IP/URL/query/referer/user-agent. Se registra estado, timestamp UTC e identificador validado, y tipo de excepción sin texto/stack sensible. Alloy selecciona eventos HTTP propios de api/ml/web; etiquetas acotadas más service_name automático de Loki. No se centralizan logs libres de framework, init/previous containers, eventos Kubernetes, otros pods o dependencias Compose. No es captura integral de incidentes ni tracing distribuido.
+
+Grafana incorpora datasource Loki opcional y dashboard versionado con cinco consultas: 5xx, excepciones Spring, errores FastAPI, nginx y request_id. Diez ejecuciones desde Loki/Grafana correctas; tres servicios con logs reales (primera muestra: API 30/ML 23/web 27 entradas). GET real `/api/v1/models/active` correlacionado en los tres, sin inferencia nueva. Vistas de errores vacías: no se provocaron errores ni se afirma validación contra incidentes inexistentes. Persistencia: exactamente tres entradas de referencia iguales después de rollout restart de Loki, con mismo PVC.
+
+Pruebas: `./mvnw --batch-mode verify` con Java 21, **11 casos**; `uv run --project apps/ml-service --locked pytest apps/ml-service/tests -q`, **15 casos**, aviso TestClient heredado. Tres imágenes app construidas con etiqueta nueva y exportadas localmente; usuario importó tar una vez. `scripts/validate_logging.sh`: Helm lint/render, **33 recursos** válidos (logging+observabilidad+storage), validadores oficiales Loki/Alloy sin red. `scripts/validate_observability.sh`: tres unittest y 22 PromQL válidas, recursos F5.1 válidos. actionlint/bash -n/py_compile/diff --check pasan. Sin cambios React, no se repite su build/lint; nueva imagen nginx y smoke HTTP real aprobados. CI añade validación logs; **CI remota F5.2 pendiente**, sin invocarla.
+
+Seguridad real: Alloy autorizado a pods/log, denegado a Secrets/exec/nodes-proxy/kube-system; app→Loki rechazado, Grafana/Alloy acceden; Grafana anónima 401. Escaneo de muestras hasta 500 líneas/servicio y secretos locales/patrones sin filtración detectada; no auditoría exhaustiva. Loki 4m/68 MiB y Alloy 2m/43 MiB, muestras, no capacidad comercial. PVC Loki: siete archivos/125170 bytes lógicos medidos con pod temporal RO/sin token, eliminado después. local-path no ofrece cuota física garantizada; retención no se probó durante 48h.
+
+Problemas resueltos: sandbox inicialmente bloqueó Docker/red/caché Maven; pruebas realizadas con acceso no privilegiado del usuario fuera del aislamiento, sin cambiar permisos del host. Primera comprobación de etiquetas detectó service_name automático acotado; validación corregida. Imagen Loki no tiene du; medición sustituida por sonda RO. La reconexión del port-forward después del reemplazo de Loki es necesaria y se ejecutó.
+
+Snapshots read-only antes/después iguales: 1 297 296 ventas, suma decimal/fechas, 9 106 020 features, cutoff 2014-12-31, cero autorizaciones/etiquetas futuras, modelo/métricas v1 y **19 versiones de objetos MLflow**. Inventario de volúmenes Docker igual; no hash completo de tablas ni backup. Evidencia privada `.local/f52`: maven/pytest/build/static/metrics-regression, helm-*, verification-*.json, persistence-before/result, data-before/after/integrity-comparison, resources-*, storage-loki, app/observability-live y cierre. Los archivos nuevos versionables incluyen charts/configs, scripts logging/validate/verify, pruebas Java/Python y LOGGING.md; datasets, secretos, tars, logs y evidencias siguen ignorados.
+
+Cierre real verificado: **ocho Deployments a cero**, sin pods app/observabilidad y **cinco PVC Bound**; las cuatro dependencias reactivadas quedaron detenidas y los nueve servicios Compose están exited. Tres forwards y puente propios cerrados; sin listeners temporales. K3s activo/disabled tras arranque personal del usuario; para volver al inactive inicial requiere `sudo systemctl stop k3s` ejecutado por él. No se eliminó persistencia. `closure.json`, app-stopped/observability-stopped y compose-stopped registran el estado final.
+
+Próxima tarea exacta: revisión de F5.2 y eventual CI remota del usuario; **detenerse antes de F5.3**. Reactivación/cierre y limitaciones en LOGGING.md; sin commit/push/pull ni GHCR.
 
 ## F5.1 — Métricas, Prometheus y Grafana
 

@@ -1,0 +1,22 @@
+# Namespace restricted de observabilidad ya existente; no recrearlo.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: retailops-loki
+  namespace: retailops-observability
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests: {storage: 2Gi}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: retailops-alloy
+  namespace: retailops-observability
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests: {storage: 256Mi}

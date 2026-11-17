@@ -1,0 +1,55 @@
+logging {
+  level = "warn"
+  format = "json"
+}
+// Lista cerrada: nunca descubrimiento global ni namespaces del sistema.
+discovery.kubernetes "pods" {
+  role = "pod"
+  namespaces {
+    names = ["retailops", "retailops-observability"]
+  }
+}
+discovery.relabel "pods" {
+  targets = discovery.kubernetes.pods.targets
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_name"]
+    regex = "(api|ml|web)"
+    action = "keep"
+  }
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label = "namespace"
+  }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_name"]
+    target_label = "container"
+  }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_name"]
+    target_label = "service"
+  }
+  rule {
+    target_label = "environment"
+    replacement = "local"
+  }
+}
+loki.source.kubernetes "pods" {
+  targets = discovery.relabel.pods.output
+  forward_to = [loki.process.safe.receiver]
+}
+loki.process "safe" {
+  // Solo eventos HTTP propios; descarta access logs nativos y excepciones libres.
+  stage.match {
+    selector = "{environment=\"local\"} !~ \"Solicitud HTTP (completada|fallida)\""
+    action = "drop"
+  }
+  stage.label_keep {
+    values = ["service", "namespace", "container", "environment"]
+  }
+  forward_to = [loki.write.local.receiver]
+}
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

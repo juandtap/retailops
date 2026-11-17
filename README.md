@@ -2,7 +2,7 @@
 
 Plataforma full-stack local de análisis y predicción de ventas diarias por tienda y familia a siete días. Demuestra ingeniería de software y datos, ML, MLOps, DevOps y SRE mediante una reproducción histórica de Corporación Favorita. Apoya planificación comercial y estimación de demanda; no optimiza inventario real.
 
-**Estado:** F0/F1/F2/F3 completadas en sus alcances registrados; aplicación React → Spring → FastAPI verificada con datos reales y candidato MLflow v1, sin aprobación de producción. Corte 2014-12-31; cero meses nuevos liberados. F4 incorpora CI validada localmente y despliegue K3s/Helm real con smoke y ensayo de actualización/rollback aprobados. Laboratorio detenido conservando recursos; K3s sigue activo con autoarranque deshabilitado. F5.1 añade métricas, Prometheus y Grafana verificados; sin autenticación comercial, Loki o Alertmanager. Ver [progreso](docs/PROGRESS.md), [roadmap](docs/ROADMAP.md) y [despliegue](docs/DEPLOYMENT.md).
+**Estado:** F0/F1/F2/F3 completadas en sus alcances registrados; aplicación React → Spring → FastAPI verificada con datos reales y candidato MLflow v1, sin aprobación de producción. Corte 2014-12-31; cero meses nuevos liberados. F4 incorpora CI validada localmente y despliegue K3s/Helm real con smoke y ensayo de actualización/rollback aprobados. Laboratorio detenido conservando recursos; K3s sigue activo con autoarranque deshabilitado. F5.1 añade métricas, Prometheus y Grafana verificados; F5.2 añade Loki/Alloy y logs HTTP correlacionados verificados; sin autenticación comercial o Alertmanager. Ver [progreso](docs/PROGRESS.md), [roadmap](docs/ROADMAP.md) y [despliegue](docs/DEPLOYMENT.md).
 
 ## Stack y arquitectura
 
@@ -164,4 +164,4 @@ Aplicación integrada F3: [inicio, endpoints y smoke real](docs/APPLICATION.md).
 
 CI y despliegue F4: [DEPLOYMENT.md](docs/DEPLOYMENT.md). Workflows/imágenes validados localmente; K3s/Helm y ensayo real de rollout/rollback aprobados. Actions remota y publicación no ejecutadas. Compose conserva infraestructura y datos; sin publicación automática ni observabilidad.
 
-F5.1: [observabilidad con Prometheus y Grafana](docs/OBSERVABILITY.md), dashboards provisionados y cuatro targets UP verificados. Laboratorio detenido conservando métricas/PVC/credenciales; procedimiento de reactivación documentado. No F5.2.
+F5.1: [observabilidad con Prometheus y Grafana](docs/OBSERVABILITY.md), dashboards provisionados y cuatro targets UP verificados. Laboratorio detenido conservando métricas/PVC/credenciales; procedimiento de reactivación documentado. F5.2: [Loki/Alloy y correlación](docs/LOGGING.md); cobertura de logs HTTP propios, persistencia real y cierre conservador. Sin F5.3.

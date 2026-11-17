@@ -1,6 +1,20 @@
 # Roadmap de implementación
 
-F4 completada localmente y CI RetailOps #2 exitosa según usuario. **F5.1 autorizada e implementada: exclusivamente métricas, Prometheus y Grafana.** Sin Loki/Alertmanager/backups/incidentes ni F5.2. Cambios F5.1 sin commit/push/pull/publicación; CI nueva pendiente de ejecución remota.
+**F5.2 implementada y validada localmente**, sin F5.3. F5.1 publicada/CI remota exitosa según usuario; CI nueva F5.2 solo validada localmente. Sin commit/push/pull/publicación.
+
+## F5.2 — Loki, Alloy y correlación
+
+| Hecha | ID | Alcance | Evidencia / límites |
+| --- | --- | --- | --- |
+| [x] | F52-LOG01 | Inspección y permiso mínimo API | Usuario autorizó Roles pods/pods-log en dos namespaces; sin hostPath/socket/proxy |
+| [x] | F52-LOG02 | JSON HTTP y correlación | 11 JUnit/15 pytest; request_id real web→Spring→FastAPI, sin inferencia nueva |
+| [x] | F52-LOG03 | Loki/Alloy persistentes y acotados | Ready, PVC propios, retención/ingestión limitada; validadores oficiales y 33 recursos válidos |
+| [x] | F52-LOG04 | Grafana y consultas reales | Tres servicios con logs, cinco consultas por Loki/Grafana; errores vacíos sin fabricar incidentes |
+| [x] | F52-LOG05 | Persistencia, integridad y cierre | Tres entradas idénticas tras reemplazar Loki; histórico/cutoff/v1/19 objetos iguales; ocho workloads a cero/cinco PVC Bound |
+
+Cobertura limitada a eventos HTTP propios de tres contenedores app. Compose, logs libres, eventos Kubernetes y contenedores previos quedan fuera. Sin prueba de 48h, fallos destructivos, backup o carga. [Arquitectura, operación y evidencia](LOGGING.md).
+
+Próxima tarea exacta: revisar F5.2 y CI remota del usuario; detenerse antes de F5.3.
 
 ## F5.1 — Métricas, Prometheus y Grafana
 
@@ -12,7 +26,7 @@ F4 completada localmente y CI RetailOps #2 exitosa según usuario. **F5.1 autori
 | [x] | F51-OBS04 | Dashboards/targets/PromQL reales | Cuatro targets UP, datasource OK, tres dashboards y 24 consultas; 22 expresiones validadas |
 | [x] | F51-OBS05 | Integridad, operación y cierre | Histórico/v1/19 versiones de objetos/cuatro volúmenes iguales; seis workloads a cero, PVC y K3s conservados |
 
-Próxima tarea exacta: revisión F5.1 y detenerse antes de F5.2. Procedimiento para reactivar/detener en OBSERVABILITY.md, sin repetir instalación/importación/UFW. No afirmar pruebas de CI remota nueva, navegador, carga, fallos o backups no ejecutadas.
+Cierre histórico F5.1; autorización y siguiente tarea F5.2 actualizadas en el bloque superior. Procedimiento para reactivar/detener en OBSERVABILITY.md, sin repetir instalación/importación/UFW. No afirmar pruebas de CI remota nueva, navegador, carga, fallos o backups no ejecutadas.
 
 ## F4 autorizada — CI/CD, K3s y Helm
 

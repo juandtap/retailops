@@ -1,3 +1,5 @@
+> Este documento registra F5.1. El usuario confirmó posteriormente su publicación y CI exitosa; F5.2 autorizada y validada se documenta en [LOGGING.md](LOGGING.md). Sus restricciones de no iniciar F5.2 describen el cierre histórico, superado por esa autorización. No avanzar a F5.3.
+
 # F5.1 — Prometheus y Grafana del laboratorio híbrido
 
 Implementada y validada realmente el 2026-11-16, America/Guayaquil. Exclusivamente métricas: sin Loki, Alertmanager, reglas de alerta, backups o simulaciones de incidentes. CI RetailOps #2 de F4 fue exitoso según confirmación del usuario; la ampliación CI de F5.1 está validada localmente y aún no se ejecutó en GitHub.

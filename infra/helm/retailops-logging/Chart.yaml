@@ -1,0 +1,6 @@
+apiVersion: v2
+name: retailops-logging
+description: Logs locales F5.2 mediante API Kubernetes, sin acceso al host
+type: application
+version: 0.1.0
+appVersion: "F5.2"
