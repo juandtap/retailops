@@ -1,0 +1,487 @@
+{
+  "uid": "retailops-sre",
+  "title": "RetailOps · Alertas y SLO propuestos",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "tags": [
+    "retailops",
+    "f5.3"
+  ],
+  "description": "Propuestas de laboratorio. Sin datos o NaN no significa éxito; excludes apagados, ML sin tráfico /predict carece de SLI HTTP.",
+  "links": [
+    {
+      "title": "Alertmanager local: grupos y silencios",
+      "type": "link",
+      "url": "http://127.0.0.1:9094"
+    },
+    {
+      "title": "Logs correlacionados",
+      "type": "link",
+      "url": "/d/retailops-logs"
+    }
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Laboratorio activo (0=cierre planificado)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops:lab_active",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "title": "Alertas operativas pendientes o firing",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ALERTS{scope=\"operational\"}",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "title": "Pruebas sintéticas, separadas de incidentes",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ALERTS{scope=\"validation\"}",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "title": "Disponibilidad observada: scrape API / readiness ML",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops:sli_availability:ratio",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "title": "Solicitudes sin 5xx (ML solo /predict)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops:sli_non5xx:ratio5m",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "title": "p95 HTTP negocio (ML solo /predict)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops:sli_latency:p95_5m",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "title": "Memoria pods / límite",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops_kubernetes_container_memory_working_set_bytes / retailops_kubernetes_container_memory_limits_bytes",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "title": "Reinicios observados en 10 minutos",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 24,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "increase(retailops_kubernetes_container_restarts_total[10m])",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 9,
+      "title": "Cobertura SLI por hora (objetivo 120 muestras)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 32,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops:sli_availability:samples1h",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "title": "Disponibilidad 1h (mínimo 120 muestras)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 32,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops:sli_availability:ratio1h",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "title": "Presupuesto disponibilidad 99% restante 1h",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 40,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops:slo_availability:budget_remaining1h",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 12,
+      "title": "Presupuesto sin 5xx 99% restante 1h (mínimo 100 solicitudes)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "retailops-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 40,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "retailops:slo_non5xx:budget_remaining1h",
+          "legendFormat": "{{service}} {{alertname}} {{container}} {{alertstate}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "links": [
+            {
+              "title": "Logs relacionados: seleccionar servicio y request_id",
+              "url": "/d/retailops-logs"
+            },
+            {
+              "title": "Métricas HTTP",
+              "url": "/d/retailops-http"
+            }
+          ]
+        },
+        "overrides": []
+      }
+    }
+  ]
+}

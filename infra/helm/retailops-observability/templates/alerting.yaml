@@ -1,0 +1,117 @@
+{{- if .Values.alerting.enabled }}
+{{- if not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.alerting.image) }}
+{{- fail "Alertmanager requiere digest verificado" }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: retailops-alerting-config
+data:
+  alertmanager.yml: |
+{{ .Files.Get "files/alerting/alertmanager.yml" | indent 4 }}
+  receiver.py: |
+{{ .Files.Get "files/alerting/receiver.py" | indent 4 }}
+{{- range $name, $port := dict "alertmanager" 9093 "alert-receiver" 8090 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+spec:
+  type: ClusterIP
+  selector: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: {{ $name }}}
+  ports: [{name: http, port: {{ $port }}, targetPort: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: {{ $name }}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: {{ $name }}}
+      annotations:
+        checksum/config: {{ printf "%s%s" ($.Files.Get "files/alerting/alertmanager.yml") ($.Files.Get "files/alerting/receiver.py") | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: {{ $name }}
+          image: {{ ternary $.Values.alerting.image $.Values.images.collector (eq $name "alertmanager") | quote }}
+          imagePullPolicy: IfNotPresent
+          {{- if eq $name "alertmanager" }}
+          args:
+            - --config.file=/etc/retailops/alertmanager.yml
+            - --storage.path=/data
+            - --data.retention=48h
+            - --cluster.listen-address=
+            - --web.listen-address=:9093
+            - --log.level=warn
+          env: [{name: GOMEMLIMIT, value: 96MiB}]
+          {{- else }}
+          command: [python, /etc/retailops/receiver.py]
+          env: [{name: PYTHONDONTWRITEBYTECODE, value: "1"}, {name: PYTHONUNBUFFERED, value: "1"}]
+          {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          ports: [{name: http, containerPort: {{ $port }}}]
+          resources: {{ toYaml (ternary $.Values.alerting.alertmanagerResources $.Values.alerting.receiverResources (eq $name "alertmanager")) | nindent 12 }}
+          startupProbe:
+            httpGet: {path: {{ ternary "/-/ready" "/health" (eq $name "alertmanager") }}, port: http}
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: {path: {{ ternary "/-/ready" "/health" (eq $name "alertmanager") }}, port: http}
+          livenessProbe:
+            httpGet: {path: {{ ternary "/-/healthy" "/health" (eq $name "alertmanager") }}, port: http}
+          volumeMounts:
+            - {name: config, mountPath: /etc/retailops, readOnly: true}
+            - {name: data, mountPath: /data}
+            - {name: tmp, mountPath: /tmp}
+            {{- if eq $name "alert-receiver" }}
+            - {name: state, mountPath: /etc/state, readOnly: true}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap: {name: retailops-alerting-config}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ ternary $.Values.alerting.alertmanagerClaim $.Values.alerting.receiverClaim (eq $name "alertmanager") }}
+        - name: tmp
+          emptyDir: {medium: Memory, sizeLimit: 16Mi}
+        {{- if eq $name "alert-receiver" }}
+        - name: state
+          configMap: {name: retailops-lab-state}
+        {{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: {{ $name }}}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: prometheus}
+        {{- if eq $name "alert-receiver" }}
+        - podSelector:
+            matchLabels: {app.kubernetes.io/part-of: retailops-observability, app.kubernetes.io/component: alertmanager}
+        {{- end }}
+      ports: [{protocol: TCP, port: {{ $port }}}]
+{{- end }}
+{{- end }}

@@ -1,3 +1,5 @@
+> F5.3 añade [alertas locales, SLI/SLO propuestos y cierre con lab_active](SRE.md). Con ese chart habilitado hay seis targets y siete componentes de observabilidad/logs, además de las tres apps. No avanzar a F5.4; el resto conserva la evidencia histórica de métricas.
+
 > Este documento registra F5.1. El usuario confirmó posteriormente su publicación y CI exitosa; F5.2 autorizada y validada se documenta en [LOGGING.md](LOGGING.md). Sus restricciones de no iniciar F5.2 describen el cierre histórico, superado por esa autorización. No avanzar a F5.3.
 
 # F5.1 — Prometheus y Grafana del laboratorio híbrido

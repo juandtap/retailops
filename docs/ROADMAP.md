@@ -1,6 +1,18 @@
 # Roadmap de implementación
 
-**F5.2 implementada y validada localmente**, sin F5.3. F5.1 publicada/CI remota exitosa según usuario; CI nueva F5.2 solo validada localmente. Sin commit/push/pull/publicación.
+**F5.3 implementada y validada localmente**, con cierre conservador comprobado. F5.2 publicada y GitHub Actions exitosa según usuario. Sin F5.4, fallos destructivos, notificaciones externas ni commit/push/pull/publicación.
+
+## F5.3 — Alertas, SLI/SLO y runbooks
+
+| Hecha | ID | Alcance | Evidencia / límites |
+| --- | --- | --- | --- |
+| [x] | F53-SRE01 | Inspección y señales reales | Sin memoria continua MLflow; reinicios desde pods/RBAC existente; ningún permiso nuevo |
+| [x] | F53-SRE02 | Alertmanager y receptor local | Configuración/digest versionados, dos PVC propios, grouping/inhibición/silencios y persistencia reales |
+| [x] | F53-SRE03 | Reglas operativas y cierre esperado | 19 grabaciones/11 alertas operativas/una sintética; seis unittest y 12 escenarios promtool pasan |
+| [x] | F53-SRE04 | SLO propuestos, dashboards y runbooks | 12 paneles/consultas reales y destinos logs por API; sin SLO cumplido, hora completa o tráfico predictivo |
+| [x] | F53-SRE05 | Integridad y cierre conservador | Snapshots/cuatro volúmenes iguales; diez workloads a cero/siete PVC Bound; cierre sin alertas espurias verificado |
+
+Próxima tarea exacta: revisión F5.3 y eventual CI remota del usuario; detenerse antes de F5.4. CI nueva solo local. [Diseño y evidencia](SRE.md), [respuesta operativa](RUNBOOKS.md).
 
 ## F5.2 — Loki, Alloy y correlación
 
@@ -14,7 +26,7 @@
 
 Cobertura limitada a eventos HTTP propios de tres contenedores app. Compose, logs libres, eventos Kubernetes y contenedores previos quedan fuera. Sin prueba de 48h, fallos destructivos, backup o carga. [Arquitectura, operación y evidencia](LOGGING.md).
 
-Próxima tarea exacta: revisar F5.2 y CI remota del usuario; detenerse antes de F5.3.
+Cierre histórico F5.2; usuario confirmó después push/CI exitosa y autorizó F5.3, registrada arriba.
 
 ## F5.1 — Métricas, Prometheus y Grafana
 

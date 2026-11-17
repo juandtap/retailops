@@ -5,6 +5,11 @@ metadata:
 data:
   prometheus.yml: |
 {{ .Files.Get "files/prometheus.yml" | indent 4 }}
+{{- if .Values.alerting.enabled }}
+{{ .Files.Get "files/alerting/prometheus-extra.yml" | indent 4 }}
+  rules.yml: |
+{{ .Files.Get "files/alerting/rules.yml" | indent 4 }}
+{{- end }}
   collector.py: |
 {{ .Files.Get "files/collector.py" | indent 4 }}
   datasources.yml: |
@@ -28,4 +33,9 @@ data:
 {{- if .Values.logging.enabled }}
   logs.json: |
 {{ .Files.Get "files/logs-dashboard.json" | indent 4 }}
+{{- end }}
+
+{{- if .Values.alerting.enabled }}
+  sre.json: |
+{{ .Files.Get "files/alerting/dashboard.json" | indent 4 }}
 {{- end }}

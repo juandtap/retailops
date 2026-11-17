@@ -1,0 +1,27 @@
+global:
+  resolve_timeout: 2m
+route:
+  receiver: local
+  group_by: [alertname, environment, scope]
+  group_wait: 15s
+  group_interval: 1m
+  repeat_interval: 4h
+  routes:
+    - matchers: ['scope="validation"']
+      receiver: local
+      group_wait: 5s
+      group_interval: 10s
+      repeat_interval: 1h
+receivers:
+  - name: local
+    webhook_configs:
+      - url: http://alert-receiver:8090/webhook
+        send_resolved: true
+        max_alerts: 100
+inhibit_rules:
+  - source_matchers: ['alertname="RetailOpsServiceUnavailable"']
+    target_matchers: ['alertname=~"RetailOpsHttp5xx|RetailOpsHttpLatency"']
+    equal: [service, environment, scope]
+  - source_matchers: ['alertname="RetailOpsCollectorUnavailable"']
+    target_matchers: ['alertname=~"RetailOpsDeploymentUnavailable|RetailOpsMemoryHigh|RetailOpsContainerRestarts|RetailOpsDependencyUnavailable|RetailOpsCollectorSectionFailed"']
+    equal: [environment, scope]

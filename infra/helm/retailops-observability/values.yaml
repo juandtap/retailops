@@ -19,3 +19,15 @@ resources:
 
 logging:
   enabled: false
+
+alerting:
+  enabled: false
+  image: prom/alertmanager@sha256:e638797febd034838eca8b98cdbd46f951e9bf7f178777aa8669167406a9946c
+  alertmanagerClaim: retailops-alertmanager
+  receiverClaim: retailops-alert-receiver
+  alertmanagerResources:
+    requests: {cpu: 25m, memory: 32Mi}
+    limits: {cpu: 200m, memory: 128Mi}
+  receiverResources:
+    requests: {cpu: 10m, memory: 24Mi}
+    limits: {cpu: 100m, memory: 64Mi}

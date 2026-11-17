@@ -56,6 +56,8 @@ def kubernetes(fetch=get, namespace=NAMESPACE, include_nodes=True):
                 elif section == 'pods':
                     ready = any(c['type'] == 'Ready' and c['status'] == 'True' for c in item.get('status', {}).get('conditions', []))
                     text += sample('retailops_kubernetes_pod_ready', ready, namespace=namespace, pod=name)
+                    for status in item.get('status', {}).get('containerStatuses', []):
+                        text += sample('retailops_kubernetes_container_restarts_total', status['restartCount'], namespace=namespace, pod=name, container=status['name'])
                     for container in item['spec']['containers']:
                         labels = {'namespace': namespace, 'pod': name, 'container': container['name']}
                         for group in ['requests', 'limits']:

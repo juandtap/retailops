@@ -35,3 +35,11 @@ class CollectorTests(unittest.TestCase):
         text=collector.kubernetes(fetch,namespace='retailops-observability',include_nodes=False)
         self.assertIn('namespace="retailops-observability",pod="fixture"',text)
         self.assertNotIn('namespace="retailops"',text)
+
+    def test_restarts_are_observed_not_invented(self):
+        def fetch(path):
+            if path == '/api/v1/namespaces/retailops/pods':
+                return {'items':[{'metadata':{'name':'fixture'},'spec':{'containers':[]},'status':{'containerStatuses':[{'name':'api','restartCount':3}]}}]}
+            return {'items':[]}
+        text=collector.kubernetes(fetch)
+        self.assertIn('retailops_kubernetes_container_restarts_total{container="api",namespace="retailops",pod="fixture"} 3.0',text)

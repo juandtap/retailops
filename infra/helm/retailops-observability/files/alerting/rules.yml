@@ -1,0 +1,345 @@
+{
+  "groups": [
+    {
+      "name": "retailops-recording",
+      "interval": "30s",
+      "rules": [
+        {
+          "record": "retailops:lab_active",
+          "expr": "max(last_over_time(retailops_lab_active[5m]))"
+        },
+        {
+          "record": "retailops:service_expected",
+          "expr": "(max(retailops_kubernetes_deployment_desired_replicas{namespace=\"retailops\",deployment=\"retailops-api\"}) > bool 0) * on() (retailops:lab_active == 1)",
+          "labels": {
+            "service": "api"
+          }
+        },
+        {
+          "record": "retailops:sli_availability:ratio",
+          "expr": "max(up{job=\"spring\"}) and on() (retailops:service_expected{service=\"api\"} == 1)",
+          "labels": {
+            "service": "api"
+          }
+        },
+        {
+          "record": "retailops:http_requests:increase5m",
+          "expr": "sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\"}[5m]))",
+          "labels": {
+            "service": "api"
+          }
+        },
+        {
+          "record": "retailops:sli_non5xx:ratio5m",
+          "expr": "((sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\",status!~\"5..\"}[5m])) or (0 * sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\"}[5m])))) / sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\"}[5m]))) and (sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\"}[5m])) > 0) and on() (retailops:service_expected{service=\"api\"} == 1)",
+          "labels": {
+            "service": "api"
+          }
+        },
+        {
+          "record": "retailops:http_requests:increase1h",
+          "expr": "sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\"}[1h]))",
+          "labels": {
+            "service": "api"
+          }
+        },
+        {
+          "record": "retailops:sli_non5xx:ratio1h",
+          "expr": "((sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\",status!~\"5..\"}[1h])) or (0 * sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\"}[1h])))) / sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\"}[1h]))) and (sum(increase(http_server_requests_seconds_count{job=\"spring\",uri=~\"/v1/.*\"}[1h])) > 0) and on() (retailops:service_expected{service=\"api\"} == 1)",
+          "labels": {
+            "service": "api"
+          }
+        },
+        {
+          "record": "retailops:sli_latency:p95_5m",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"spring\",uri=~\"/v1/.*\"}[5m]))) and on() (retailops:service_expected{service=\"api\"} == 1)",
+          "labels": {
+            "service": "api"
+          }
+        },
+        {
+          "record": "retailops:service_expected",
+          "expr": "(max(retailops_kubernetes_deployment_desired_replicas{namespace=\"retailops\",deployment=\"retailops-ml\"}) > bool 0) * on() (retailops:lab_active == 1)",
+          "labels": {
+            "service": "ml"
+          }
+        },
+        {
+          "record": "retailops:sli_availability:ratio",
+          "expr": "((max(up{job=\"fastapi\"}) == 0) or (max(up{job=\"fastapi\"}) * max(retailops_ml_model_loaded))) and on() (retailops:service_expected{service=\"ml\"} == 1)",
+          "labels": {
+            "service": "ml"
+          }
+        },
+        {
+          "record": "retailops:http_requests:increase5m",
+          "expr": "sum(increase(retailops_ml_http_requests_total{route=\"/predict\"}[5m]))",
+          "labels": {
+            "service": "ml"
+          }
+        },
+        {
+          "record": "retailops:sli_non5xx:ratio5m",
+          "expr": "((sum(increase(retailops_ml_http_requests_total{route=\"/predict\",status!~\"5..\"}[5m])) or (0 * sum(increase(retailops_ml_http_requests_total{route=\"/predict\"}[5m])))) / sum(increase(retailops_ml_http_requests_total{route=\"/predict\"}[5m]))) and (sum(increase(retailops_ml_http_requests_total{route=\"/predict\"}[5m])) > 0) and on() (retailops:service_expected{service=\"ml\"} == 1)",
+          "labels": {
+            "service": "ml"
+          }
+        },
+        {
+          "record": "retailops:http_requests:increase1h",
+          "expr": "sum(increase(retailops_ml_http_requests_total{route=\"/predict\"}[1h]))",
+          "labels": {
+            "service": "ml"
+          }
+        },
+        {
+          "record": "retailops:sli_non5xx:ratio1h",
+          "expr": "((sum(increase(retailops_ml_http_requests_total{route=\"/predict\",status!~\"5..\"}[1h])) or (0 * sum(increase(retailops_ml_http_requests_total{route=\"/predict\"}[1h])))) / sum(increase(retailops_ml_http_requests_total{route=\"/predict\"}[1h]))) and (sum(increase(retailops_ml_http_requests_total{route=\"/predict\"}[1h])) > 0) and on() (retailops:service_expected{service=\"ml\"} == 1)",
+          "labels": {
+            "service": "ml"
+          }
+        },
+        {
+          "record": "retailops:sli_latency:p95_5m",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(retailops_ml_http_request_duration_seconds_bucket{route=\"/predict\"}[5m]))) and on() (retailops:service_expected{service=\"ml\"} == 1)",
+          "labels": {
+            "service": "ml"
+          }
+        },
+        {
+          "record": "retailops:sli_availability:samples1h",
+          "expr": "count_over_time(retailops:sli_availability:ratio[1h])"
+        },
+        {
+          "record": "retailops:sli_availability:ratio1h",
+          "expr": "avg_over_time(retailops:sli_availability:ratio[1h]) and (retailops:sli_availability:samples1h >= 120)"
+        },
+        {
+          "record": "retailops:slo_availability:budget_remaining1h",
+          "expr": "1 - ((1 - retailops:sli_availability:ratio1h) / 0.01)"
+        },
+        {
+          "record": "retailops:slo_non5xx:budget_remaining1h",
+          "expr": "(1 - ((1 - retailops:sli_non5xx:ratio1h) / 0.01)) and (retailops:http_requests:increase1h >= 100) and on(service) (retailops:sli_availability:samples1h >= 120)"
+        }
+      ]
+    },
+    {
+      "name": "retailops-operational",
+      "interval": "30s",
+      "rules": [
+        {
+          "alert": "RetailOpsServiceUnavailable",
+          "expr": "retailops:sli_availability:ratio == 0",
+          "for": "3m",
+          "labels": {
+            "severity": "critical",
+            "category": "application",
+            "scope": "operational",
+            "environment": "local"
+          },
+          "annotations": {
+            "summary": "API o readiness ML no disponible según señales observadas",
+            "runbook_url": "docs/RUNBOOKS.md#api-no-disponible",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsHttp5xx",
+          "expr": "((1 - retailops:sli_non5xx:ratio5m) > 0.05) and (retailops:http_requests:increase5m >= 20)",
+          "for": "5m",
+          "labels": {
+            "severity": "warning",
+            "category": "application",
+            "scope": "operational",
+            "environment": "local"
+          },
+          "annotations": {
+            "summary": "Más de 5% HTTP 5xx sostenido con al menos 20 solicitudes/5m",
+            "runbook_url": "docs/RUNBOOKS.md#errores-http-5xx",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsHttpLatency",
+          "expr": "(retailops:sli_latency:p95_5m > 1) and (retailops:http_requests:increase5m >= 20)",
+          "for": "5m",
+          "labels": {
+            "severity": "warning",
+            "category": "application",
+            "scope": "operational",
+            "environment": "local"
+          },
+          "annotations": {
+            "summary": "p95 mayor de 1 segundo con tráfico suficiente",
+            "runbook_url": "docs/RUNBOOKS.md#latencia-elevada",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsDeploymentUnavailable",
+          "expr": "(retailops_kubernetes_deployment_available_replicas < retailops_kubernetes_deployment_desired_replicas) and (retailops_kubernetes_deployment_desired_replicas > 0) and on() (retailops:lab_active == 1)",
+          "for": "5m",
+          "labels": {
+            "severity": "critical",
+            "category": "infrastructure",
+            "scope": "operational",
+            "environment": "local"
+          },
+          "annotations": {
+            "summary": "Deployment esperado sin réplicas disponibles",
+            "runbook_url": "docs/RUNBOOKS.md#api-no-disponible",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsMemoryHigh",
+          "expr": "(retailops_kubernetes_container_memory_working_set_bytes / retailops_kubernetes_container_memory_limits_bytes > 0.85) and on() (retailops:lab_active == 1)",
+          "for": "10m",
+          "labels": {
+            "severity": "warning",
+            "category": "infrastructure",
+            "scope": "operational",
+            "environment": "local"
+          },
+          "annotations": {
+            "summary": "Working set de pod mayor de 85% de su límite",
+            "runbook_url": "docs/RUNBOOKS.md#memoria-elevada",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsContainerRestarts",
+          "expr": "(increase(retailops_kubernetes_container_restarts_total[10m]) > 0) and on() (retailops:lab_active == 1)",
+          "for": "1m",
+          "labels": {
+            "severity": "warning",
+            "category": "infrastructure",
+            "scope": "operational",
+            "environment": "local"
+          },
+          "annotations": {
+            "summary": "Incremento observado del restartCount de un contenedor",
+            "runbook_url": "docs/RUNBOOKS.md#reinicios-inesperados",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsMetricsEndpointUnavailable",
+          "expr": "((up{job=\"spring\"} == 0 and on() (retailops:service_expected{service=\"api\"} == 1)) or (up{job=\"fastapi\"} == 0 and on() (retailops:service_expected{service=\"ml\"} == 1)) or up{job=~\"alertmanager|alert-receiver\"} == 0) and on() (retailops:lab_active == 1)",
+          "for": "3m",
+          "labels": {
+            "severity": "warning",
+            "category": "infrastructure",
+            "scope": "operational",
+            "environment": "local"
+          },
+          "annotations": {
+            "summary": "Endpoint de métricas no accesible",
+            "runbook_url": "docs/RUNBOOKS.md#recoleccion-de-metricas",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsCollectorUnavailable",
+          "expr": "up{job=\"lab\"} == 0 and on() (retailops:lab_active == 1)",
+          "for": "2m",
+          "labels": {
+            "severity": "critical",
+            "category": "infrastructure",
+            "scope": "operational",
+            "environment": "local",
+            "service": "collector"
+          },
+          "annotations": {
+            "summary": "Adaptador Kubernetes/dependencias no accesible",
+            "runbook_url": "docs/RUNBOOKS.md#recoleccion-de-metricas",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsCollectorSectionFailed",
+          "expr": "((retailops_collector_section_success{section!=\"dependencies\"} == 0) or (retailops_collector_section_success{section=\"dependencies\"} == 0 and on() (retailops:service_expected{service=\"api\"} == 1))) and on() (retailops:lab_active == 1)",
+          "for": "3m",
+          "labels": {
+            "severity": "warning",
+            "category": "infrastructure",
+            "scope": "operational",
+            "environment": "local",
+            "service": "collector"
+          },
+          "annotations": {
+            "summary": "Sección del adaptador sin observación fiable",
+            "runbook_url": "docs/RUNBOOKS.md#recoleccion-de-metricas",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsDependencyUnavailable",
+          "expr": "retailops_dependency_up{service=~\"postgresql|fastapi|mlflow|minio|airflow\"} == 0 and on() (retailops:lab_active == 1)",
+          "for": "3m",
+          "labels": {
+            "severity": "critical",
+            "category": "application",
+            "scope": "operational",
+            "environment": "local"
+          },
+          "annotations": {
+            "summary": "Probe de dependencia disponible indica fallo; no inferir causa raíz",
+            "runbook_url": "docs/RUNBOOKS.md#fastapi-ml-no-disponible",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        },
+        {
+          "alert": "RetailOpsLabSignalUnavailable",
+          "expr": "up{job=\"alert-receiver\"} == 0",
+          "for": "2m",
+          "labels": {
+            "severity": "critical",
+            "category": "infrastructure",
+            "scope": "operational",
+            "environment": "local",
+            "service": "alert-receiver"
+          },
+          "annotations": {
+            "summary": "Señal de actividad y receptor local no accesibles",
+            "runbook_url": "docs/RUNBOOKS.md#recoleccion-de-metricas",
+            "dashboard_url": "http://127.0.0.1:3001/d/retailops-sre",
+            "logs_url": "http://127.0.0.1:3001/d/retailops-logs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "retailops-validation",
+      "interval": "10s",
+      "rules": [
+        {
+          "alert": "RetailOpsValidationSignal",
+          "expr": "retailops_alert_test_signal == 1",
+          "for": "10s",
+          "labels": {
+            "severity": "info",
+            "category": "validation",
+            "scope": "validation",
+            "environment": "local"
+          },
+          "annotations": {
+            "summary": "Señal sintética reversible; no incidente de RetailOps",
+            "runbook_url": "docs/SRE.md#validacion-controlada"
+          }
+        }
+      ]
+    }
+  ]
+}

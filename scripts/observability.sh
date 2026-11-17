@@ -60,7 +60,7 @@ PY
     "${K[@]}" -n retailops scale deployment/retailops-web deployment/retailops-api deployment/retailops-ml --replicas=0
     "${K[@]}" -n retailops wait --for=delete pods --all --timeout=90s
     "${K[@]}" -n retailops-observability scale deployment/prometheus deployment/grafana deployment/collector --replicas=0
-    "${K[@]}" -n retailops-observability wait --for=delete pods --all --timeout=90s
+    "${K[@]}" -n retailops-observability wait --for=delete pods -l 'app.kubernetes.io/part-of=retailops-observability,app.kubernetes.io/component in (prometheus,grafana,collector)' --timeout=90s
     # Invocar solo cuando esas dependencias se hayan iniciado para el laboratorio.
     "${D[@]}" stop airflow-api mlflow minio postgres
     echo 'Cerrar con Ctrl-C únicamente los forwards/puente iniciados para esta sesión; conservar PVC/Secrets/releases.'

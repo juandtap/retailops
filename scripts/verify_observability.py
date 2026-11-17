@@ -26,7 +26,8 @@ def main():
     prom, graf = 'http://127.0.0.1:9091', 'http://127.0.0.1:3001'
     report = {'targets':[], 'queries':[], 'dashboards':[], 'app_metrics_complete':False}
     targets = get(prom, '/api/v1/targets')['data']['activeTargets']
-    assert {t['labels']['job'] for t in targets} == {'spring','fastapi','lab','prometheus'}
+    jobs = {t['labels']['job'] for t in targets}
+    assert {'spring','fastapi','lab','prometheus'} <= jobs <= {'spring','fastapi','lab','prometheus','alertmanager','alert-receiver'}
     for target in targets:
         job, health = target['labels']['job'], target['health']
         report['targets'].append({'job':job,'health':health,'lastError':target['lastError']})
